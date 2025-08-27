@@ -62,7 +62,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       !screens.mainMenu || !screens.chapterSelect || !screens.levelSelect || !screens.game || !startGameBtn || 
       !settingsBtn || !backToMainBtn || !chapterGrid || !levelSelectTitle || !levelGrid || !backToChaptersBtn ||
       !gameScreen || !timerBarProgress || !questionTitle || !questionText || !answersContainer || !backToMapInGameBtn ||
-      !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn) {
+      !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn ||
+      !nameEntryContainer || !playerNameInput || !continueBtn || !welcomeContainer || !welcomeMessage || !mainMenuButtons || !changeNameBtn
+      ) {
     console.error('Essential UI elements not found!');
     return;
   }
@@ -122,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       playerNameInput.focus();
     }
   }
-  
+
   function updateChapterSelectScreen() {
       const yasProgress = playerProgress.chapters['yas'] || { completedLevels: 0 };
       const yasChapterCard = document.querySelector('.chapter-card[data-source="yas.json"]');
@@ -133,7 +135,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const totalYasLevels = parseInt(yasChapterCard.dataset.totalLevels || '200');
 
-      if (yasProgress.completedLevels >= totalYasLevels) {
+      const isChapter1Completed = yasProgress.completedLevels >= totalYasLevels;
+      const isSpecialUser = playerProgress.playerName === 'abolfazl1401';
+
+      if (isChapter1Completed || isSpecialUser) {
           pishroChapterCard.classList.remove('disabled');
           pishroSoonText.classList.add('hidden');
       } else {
@@ -162,8 +167,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- Loading Screen Logic ---
   function showOfflineMessage() {
-    if (loadingInterval) clearInterval(loadingInterval);
-    loadingInterval = null;
+    if (loadingInterval) {
+        clearInterval(loadingInterval);
+        loadingInterval = null;
+    }
     statusText.textContent = 'اتصال به اینترنت برقرار نیست. لطفا وصل شوید و دوباره تلاش کنید.';
     statusText.classList.add('error');
     loaderContainer.style.display = 'none';
@@ -197,7 +204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, { once: true });
   }
   
-  async function checkConnection() {
+  async function initializeApp() {
     if (navigator.onLine) {
       startLoading();
     } else {
@@ -218,6 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let timeLeft = LEVEL_TIME;
 
     void timerBarProgress.offsetWidth;
+
     timerBarProgress.style.transition = `width ${LEVEL_TIME}s linear, background 0.5s`;
     timerBarProgress.style.width = '0%';
     
@@ -293,33 +301,44 @@ document.addEventListener('DOMContentLoaded', async () => {
       mainContent.classList.remove('is-loading-chapter');
     }
   }
-  
+
   function getNextQuestion(isRetry) {
       const chapterProgress = playerProgress.chapters[currentChapterId];
+
+      // Start with a pool of questions that have not been correctly answered yet.
       let availableQuestions = gameData.filter(q => !chapterProgress.completedQuestions.includes(q.question));
+
+      // If all questions are answered, reset the pool to allow replaying.
       if (availableQuestions.length === 0 && gameData.length > 0) {
-          chapterProgress.completedQuestions = [];
+          chapterProgress.completedQuestions = []; // Reset for replayability
           saveProgress();
           availableQuestions = [...gameData];
       }
+
+      // On retry, if possible, pick a question different from the last one.
       if (isRetry && currentQuestion && availableQuestions.length > 1) {
           const otherQuestions = availableQuestions.filter(q => q.question !== currentQuestion.question);
           if (otherQuestions.length > 0) {
               availableQuestions = otherQuestions;
           }
       }
+      
       if (availableQuestions.length === 0) return null;
+      
       const randomIndex = Math.floor(Math.random() * availableQuestions.length);
       return availableQuestions[randomIndex];
   }
 
   function startLevel(levelNumber, isRetry = false) {
+    // Ensure progress object exists for the current chapter
     if (!playerProgress.chapters[currentChapterId]) {
         playerProgress.chapters[currentChapterId] = { completedLevels: 0, completedQuestions: [] };
     }
+    
     if (!isRetry) {
         currentQuestion = null;
     }
+
     const levelData = getNextQuestion(isRetry);
 
     if (!levelData) {
@@ -340,7 +359,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     questionText.textContent = levelData.question;
     answersContainer.innerHTML = '';
 
-    levelData.options.forEach(option => {
+    // Shuffle options to randomize their display order
+    const shuffledOptions = [...levelData.options];
+    for (let i = shuffledOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+    }
+
+    shuffledOptions.forEach(option => {
       const button = document.createElement('button');
       button.classList.add('answer-button');
       button.textContent = option;
@@ -418,4 +444,97 @@ document.addEventListener('DOMContentLoaded', async () => {
   function hideFeedbackModal() {
     feedbackModal.classList.add('hidden');
   }
+
+  function handleParallax(event) {
+      const { clientX, clientY } = event;
+      const { innerWidth, innerHeight } = window;
+      const moveX = (clientX - innerWidth / 2) / 40;
+      const moveY = (clientY - innerHeight / 2) / 40;
+      backgroundAnimation.style.transform = `translate(${moveX}px, ${moveY}px)`;
+  }
+
+  // --- Event Listeners ---
+  continueBtn.addEventListener('click', () => {
+    const name = playerNameInput.value.trim();
+    if (name) {
+      playerProgress.playerName = name;
+      saveProgress();
+      setupMainMenu();
+    } else {
+        playerNameInput.classList.add('shake');
+        setTimeout(() => playerNameInput.classList.remove('shake'), 500);
+    }
+  });
+  
+  playerNameInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      continueBtn.click();
+    }
+  });
+
+  changeNameBtn.addEventListener('click', () => {
+    playerProgress.playerName = '';
+    saveProgress();
+    setupMainMenu();
+  });
+
+  startGameBtn.addEventListener('click', () => navigateTo('chapterSelect'));
+  backToMainBtn.addEventListener('click', () => navigateTo('mainMenu'));
+  backToChaptersBtn.addEventListener('click', () => navigateTo('chapterSelect'));
+  
+  backToMapInGameBtn.addEventListener('click', () => {
+    loadProgress();
+    const chapterTitle = levelSelectTitle.textContent || "انتخاب مرحله";
+    populateLevelGrid(chapterTitle, currentChapterId);
+    navigateTo('levelSelect');
+  });
+
+  
+  settingsBtn.addEventListener('click', () => alert('صفحه تنظیمات در دست ساخت است!'));
+  
+  chapterGrid.addEventListener('click', (event) => {
+    const chapterCard = event.target.closest('.chapter-card');
+    if (chapterCard) selectChapter(chapterCard);
+  });
+
+  levelGrid.addEventListener('click', (event) => {
+    const levelButton = event.target.closest('.level-button');
+    if (levelButton && !levelButton.classList.contains('locked')) {
+        const levelNumber = parseInt(levelButton.dataset.level || '0');
+        startLevel(levelNumber, false);
+    }
+  });
+
+  modalNextBtn.addEventListener('click', () => {
+    hideFeedbackModal();
+    startLevel(currentLevel + 1, false);
+  });
+
+  modalRetryBtn.addEventListener('click', () => {
+    hideFeedbackModal();
+    startLevel(currentLevel, true);
+  });
+  
+  modalMapBtn.addEventListener('click', () => {
+    hideFeedbackModal();
+    loadProgress();
+    const chapterTitle = levelSelectTitle.textContent || "انتخاب مرحله";
+    populateLevelGrid(chapterTitle, currentChapterId);
+    navigateTo('levelSelect');
+  });
+  
+  window.addEventListener('mousemove', handleParallax);
+  window.addEventListener('online', () => {
+    // If loading screen is visible and not already fading out, try to initialize again
+    if (loadingScreen && !loadingScreen.classList.contains('fade-out')) {
+        initializeApp();
+    }
+  });
+  window.addEventListener('offline', showOfflineMessage);
+
+
+  // --- Initialisation ---
+  loadProgress();
+  setupMainMenu();
+  initializeApp();
 });
