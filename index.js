@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const chapterGrid = document.getElementById('chapter-grid');
 
   const levelSelectTitle = document.getElementById('level-select-title');
+  const levelProgressContainer = document.getElementById('level-progress-container');
+  const levelProgressText = document.getElementById('level-progress-text');
+  const levelProgressBar = document.getElementById('level-progress-bar');
   const levelGrid = document.getElementById('level-grid');
   const backToChaptersBtn = document.getElementById('back-to-chapters-btn');
 
@@ -61,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!loadingScreen || !progressBar || !statusText || !mainContent || !loaderContainer || !backgroundAnimation ||
       !screens.mainMenu || !screens.chapterSelect || !screens.levelSelect || !screens.game || !startGameBtn || 
       !settingsBtn || !backToMainBtn || !chapterGrid || !levelSelectTitle || !levelGrid || !backToChaptersBtn ||
+      !levelProgressContainer || !levelProgressText || !levelProgressBar ||
       !gameScreen || !timerBarProgress || !questionTitle || !questionText || !answersContainer || !backToMapInGameBtn ||
       !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn ||
       !nameEntryContainer || !playerNameInput || !continueBtn || !welcomeContainer || !welcomeMessage || !mainMenuButtons || !changeNameBtn
@@ -126,18 +130,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function updateChapterSelectScreen() {
+      const isSpecialUser = playerProgress.playerName === 'abolfazl1401';
+  
+      // --- Chapter 2 Logic ---
       const yasProgress = playerProgress.chapters['yas'] || { completedLevels: 0 };
       const yasChapterCard = document.querySelector('.chapter-card[data-source="yas.json"]');
       const pishroChapterCard = document.querySelector('.chapter-card[data-source="pishro.json"]');
       const pishroSoonText = pishroChapterCard.querySelector('.soon-text');
-
+  
       if (!yasChapterCard || !pishroChapterCard || !pishroSoonText) return;
-
+  
       const totalYasLevels = parseInt(yasChapterCard.dataset.totalLevels || '200');
-
       const isChapter1Completed = yasProgress.completedLevels >= totalYasLevels;
-      const isSpecialUser = playerProgress.playerName === 'abolfazl1401';
-
+  
       if (isChapter1Completed || isSpecialUser) {
           pishroChapterCard.classList.remove('disabled');
           pishroSoonText.classList.add('hidden');
@@ -145,6 +150,25 @@ document.addEventListener('DOMContentLoaded', async () => {
           pishroChapterCard.classList.add('disabled');
           pishroSoonText.textContent = `ابتدا فصل ۱ را کامل کنید`;
           pishroSoonText.classList.remove('hidden');
+      }
+  
+      // --- Chapter 3 Logic ---
+      const pishroProgress = playerProgress.chapters['pishro'] || { completedLevels: 0 };
+      const moeinChapterCard = document.querySelector('.chapter-card[data-source="moein.json"]');
+      const moeinSoonText = moeinChapterCard.querySelector('.soon-text');
+      
+      if (!moeinChapterCard || !moeinSoonText) return;
+  
+      const totalPishroLevels = parseInt(pishroChapterCard.dataset.totalLevels || '300');
+      const isChapter2Completed = pishroProgress.completedLevels >= totalPishroLevels;
+  
+      if (isChapter2Completed || isSpecialUser) {
+          moeinChapterCard.classList.remove('disabled');
+          moeinSoonText.classList.add('hidden');
+      } else {
+          moeinChapterCard.classList.add('disabled');
+          moeinSoonText.textContent = `ابتدا فصل ۲ را کامل کنید`;
+          moeinSoonText.classList.remove('hidden');
       }
   }
 
@@ -247,9 +271,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Game Logic ---
+  function updateLevelProgressDisplay(chapterId) {
+    const totalLevels = gameData.length;
+    const chapterProgress = playerProgress.chapters[chapterId] || { completedLevels: 0 };
+    const completedLevels = chapterProgress.completedLevels;
+
+    if (totalLevels > 0) {
+        const percentage = (completedLevels / totalLevels) * 100;
+        levelProgressBar.style.width = `${percentage}%`;
+
+        if (completedLevels >= totalLevels) {
+             levelProgressText.textContent = `!شما این فصل را تمام کرده‌اید (${totalLevels} / ${totalLevels})`;
+        } else {
+            const currentLevelForDisplay = completedLevels + 1;
+            levelProgressText.textContent = `مرحله ${currentLevelForDisplay} از ${totalLevels}`;
+        }
+    } else {
+        levelProgressText.textContent = `فصل خالی است`;
+        levelProgressBar.style.width = `0%`;
+    }
+  }
+
   function populateLevelGrid(chapterTitle, chapterId) {
     levelGrid.innerHTML = '';
     levelSelectTitle.textContent = chapterTitle;
+    updateLevelProgressDisplay(chapterId);
     const chapterProgress = playerProgress.chapters[chapterId] || { completedLevels: 0 };
     const unlockedLevel = chapterProgress.completedLevels + 1;
 
@@ -267,7 +313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             levelButton.classList.add('locked');
         }
-        levelButton.style.animationDelay = `${0.2 + i * 0.025}s`;
+        levelButton.style.animationDelay = `${0.4 + i * 0.025}s`;
         levelGrid.appendChild(levelButton);
     }
   }

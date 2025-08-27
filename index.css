@@ -1,5 +1,6 @@
 
 
+
 /* Basic reset and setup */
 :root {
   --background-color: #121212;
@@ -434,9 +435,46 @@ body {
 }
 
 /* Level Selection Screen */
+#level-progress-container {
+    width: 90%;
+    max-width: 450px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#level-progress-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+#level-progress-bar-wrapper {
+    width: 100%;
+    height: 12px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--loader-border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3) inset;
+}
+
+#level-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+    border-radius: 6px;
+    transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 0 8px var(--primary-color), 0 0 12px var(--secondary-color);
+    animation: pulse-glow-bar 2s infinite ease-in-out;
+}
+
 #level-grid-container {
     width: 100%;
-    max-height: 60vh;
+    max-height: 55vh; /* Adjusted for progress bar */
     overflow-y: auto;
     padding: 0 15px;
     margin-bottom: 20px;
@@ -715,6 +753,7 @@ body {
 
 /* Level Screen Animation */
 #level-select-screen #level-select-title,
+#level-select-screen #level-progress-container,
 #level-select-screen .level-button,
 #level-select-screen #back-to-chapters-btn,
 #game-screen #question-title-container,
@@ -731,6 +770,13 @@ body {
   animation:
     wipe-in-right 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards,
     title-glow 2.5s ease-in-out 0.7s infinite;
+}
+
+#level-select-screen.is-visible #level-progress-container {
+  animation-name: slide-up-fade-in;
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 0.2s;
 }
 
 #level-select-screen.is-visible #back-to-chapters-btn,
@@ -814,7 +860,7 @@ body {
     /* Optimize level selection screen */
     #level-grid-container {
         padding: 0 10px;
-        max-height: 65vh; /* Allow more vertical space */
+        max-height: 60vh; /* Allow more vertical space */
     }
 
     #level-grid {
