@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iran Rap - Loading...</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="background-animation"></div>
+
+  <div id="loading-screen">
+    <img src="https://up.20script.ir/file/4376-Copilot-20250812-110015-removebg-preview-2-.png" alt="Studio Logo" id="logo">
+    <h1 id="game-title">Iran Rap</h1>
+    <div id="loader-container">
+      <div id="progress-bar"></div>
+    </div>
+    <p id="status-text">در حال بارگذاری...</p>
+  </div>
+  
+  <div id="main-content" class="hidden">
+    <!-- Main Menu -->
+    <div id="main-menu">
+        <h1 class="menu-title">Iran Rap</h1>
+        <button id="start-game-btn" class="menu-button">شروع بازی</button>
+        <button id="settings-btn" class="menu-button">تنظیمات</button>
+    </div>
+
+    <!-- Chapter Selection -->
+    <div id="chapter-select-screen" class="hidden">
+        <h2 class="menu-title" id="chapter-select-title">فصل‌ها را انتخاب کنید</h2>
+        <div id="chapter-grid">
+            <div class="chapter-card" data-chapter="1" data-title="یاس">فصل ۱</div>
+            <div class="chapter-card disabled" data-chapter="2">
+              فصل ۲
+              <span class="soon-text">به زودی</span>
+            </div>
+            <div class="chapter-card disabled" data-chapter="3">
+              فصل ۳
+              <span class="soon-text">به زودی</span>
+            </div>
+        </div>
+        <button id="back-to-main-btn" class="menu-button secondary">بازگشت</button>
+    </div>
+
+    <!-- Level Selection -->
+    <div id="level-select-screen" class="hidden">
+        <h2 class="menu-title" id="level-select-title">یاس</h2>
+        <div id="level-grid-container">
+          <div id="level-grid"></div>
+        </div>
+        <button id="back-to-chapters-btn" class="menu-button secondary">بازگشت به فصل‌ها</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="hidden">
+      <div id="question-title-container">
+        <h2 class="menu-title" id="question-title"></h2>
+      </div>
+      <div id="timer-bar-container">
+        <div id="timer-bar-progress"></div>
+      </div>
+      <p id="question-text"></p>
+      <div id="answers-container"></div>
+      <button id="back-to-map-ingame-btn" class="menu-button secondary">بازگشت به نقشه راه</button>
+    </div>
+
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="feedback-modal" class="hidden">
+      <div class="modal-content">
+          <h2 id="modal-title"></h2>
+          <p id="modal-message"></p>
+          <div id="modal-actions">
+              <button id="modal-next-btn" class="menu-button">مرحله بعد</button>
+              <button id="modal-retry-btn" class="menu-button">تلاش مجدد</button>
+              <button id="modal-map-btn" class="menu-button secondary">بازگشت به نقشه</button>
+          </div>
+      </div>
+  </div>
+
+
+  <script type="module" src="index.tsx"></script>
+</body>
+</html>

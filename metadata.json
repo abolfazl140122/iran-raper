@@ -1,0 +1,5 @@
+{
+  "name": "Iran Rap",
+  "description": "A 2D web-based trivia game about Persian rap music. The game features chapters and levels where users answer questions based on images related to rap songs.",
+  "requestFramePermissions": []
+}
