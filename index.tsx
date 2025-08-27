@@ -1,4 +1,3 @@
-
 /**
  * @license
  * Copyright 2025 Google LLC
@@ -320,6 +319,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   backToMainBtn.addEventListener('click', () => navigateTo('mainMenu'));
   backToChaptersBtn.addEventListener('click', () => navigateTo('chapterSelect'));
   backToMapInGameBtn.addEventListener('click', () => {
+    loadProgress(); // Reload progress to ensure map is up-to-date
     const chapterTitle = levelSelectTitle.textContent || "یاس";
     populateLevelGrid(chapterTitle);
     navigateTo('levelSelect');
@@ -353,6 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   modalMapBtn.addEventListener('click', () => {
     hideFeedbackModal();
+    loadProgress(); // Reload progress to ensure map is up-to-date
     const chapterTitle = levelSelectTitle.textContent || "یاس";
     populateLevelGrid(chapterTitle); // Refresh grid to show new state
     navigateTo('levelSelect');

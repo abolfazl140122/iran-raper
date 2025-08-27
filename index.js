@@ -1,4 +1,3 @@
-
 /**
  * @license
  * Copyright 2025 Google LLC
@@ -319,7 +318,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   startGameBtn.addEventListener('click', () => navigateTo('chapterSelect'));
   backToMainBtn.addEventListener('click', () => navigateTo('mainMenu'));
   backToChaptersBtn.addEventListener('click', () => navigateTo('chapterSelect'));
-  backToMapInGameBtn.addEventListener('click', () => navigateTo('levelSelect'));
+  backToMapInGameBtn.addEventListener('click', () => {
+    loadProgress(); // Reload progress to ensure map is up-to-date
+    const chapterTitle = levelSelectTitle.textContent || "یاس";
+    populateLevelGrid(chapterTitle);
+    navigateTo('levelSelect');
+  });
 
   
   settingsBtn.addEventListener('click', () => alert('صفحه تنظیمات در دست ساخت است!'));
@@ -349,6 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   modalMapBtn.addEventListener('click', () => {
     hideFeedbackModal();
+    loadProgress(); // Reload progress to ensure map is up-to-date
     const chapterTitle = levelSelectTitle.textContent || "یاس";
     populateLevelGrid(chapterTitle); // Refresh grid to show new state
     navigateTo('levelSelect');
