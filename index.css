@@ -1,4 +1,5 @@
 
+
 /* Basic reset and setup */
 :root {
   --background-color: #121212;
@@ -769,3 +770,146 @@ body {
 #game-screen.is-visible .answer-button:nth-of-type(5) { animation-delay: 1.0s; }
 #game-screen.is-visible .answer-button:nth-of-type(6) { animation-delay: 1.1s; }
 #game-screen.is-visible #back-to-map-ingame-btn { animation-delay: 1.2s; }
+
+/* --- Responsiveness for Android & Mobile Devices --- */
+@media (max-width: 600px) {
+
+    /* Make fonts and titles more compact */
+    #game-title {
+        font-size: 2.5rem;
+    }
+
+    #logo {
+        width: 120px;
+    }
+
+    .menu-title {
+        font-size: 2.8rem;
+        margin-bottom: 20px;
+    }
+
+    /* Adjust main menu buttons and inputs for smaller screens */
+    .menu-button, .menu-input {
+        min-width: unset;
+        width: 90%;
+        max-width: 380px;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+    }
+    
+    #welcome-message {
+        font-size: 1.5rem;
+    }
+
+    /* Tweak chapter grid */
+    #chapter-grid {
+        gap: 12px;
+    }
+
+    .chapter-card {
+        padding: 25px 10px;
+        font-size: 1.3rem;
+    }
+
+    /* Optimize level selection screen */
+    #level-grid-container {
+        padding: 0 10px;
+        max-height: 65vh; /* Allow more vertical space */
+    }
+
+    #level-grid {
+        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Slightly smaller buttons */
+    }
+
+    .level-button {
+        font-size: 1.3rem;
+    }
+    
+    .level-button.locked::after {
+        font-size: 1.1rem;
+    }
+
+
+    /* Game Screen adjustments */
+    #question-title-container {
+        margin-bottom: 15px;
+    }
+
+    #question-text {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+        max-width: 100%;
+    }
+
+    #answers-container {
+        gap: 12px;
+        width: 100%;
+    }
+
+    .answer-button {
+        padding: 14px 10px;
+        font-size: 1rem;
+    }
+
+    #back-to-map-ingame-btn {
+        margin-top: 25px;
+    }
+
+    /* Modal adjustments */
+    .modal-content {
+        width: 90%;
+        max-width: 400px;
+        padding: 25px;
+    }
+
+    #modal-title {
+        font-size: 2.2rem;
+    }
+
+    #modal-message {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
+    
+    #modal-actions {
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 10px;
+        width: 100%;
+    }
+
+    #modal-actions .menu-button {
+      width: 100%;
+      margin: 0; /* Reset margin from general .menu-button style */
+    }
+}
+
+
+@media (max-width: 380px) {
+    /* Further adjustments for very narrow screens */
+    .menu-title {
+        font-size: 2.4rem;
+    }
+
+    #question-text {
+        font-size: 1.15rem;
+    }
+    
+    .chapter-card {
+        padding: 20px 10px;
+        font-size: 1.1rem;
+    }
+    
+    #level-grid {
+        grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+    }
+
+    .answer-button {
+        font-size: 0.9rem;
+        padding: 12px 8px;
+    }
+    
+    #modal-title {
+        font-size: 1.9rem;
+    }
+}
