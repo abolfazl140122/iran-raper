@@ -154,6 +154,11 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
 /* Main Content & Menus */
 .hidden {
   display: none !important;
@@ -166,7 +171,38 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    position: relative;
 }
+
+/* Chapter Loading Overlay */
+#main-content.is-loading-chapter::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  cursor: wait;
+}
+
+#main-content.is-loading-chapter::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  border: 5px solid var(--loader-border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 11;
+}
+
 
 #main-menu, #chapter-select-screen, #level-select-screen, #game-screen {
     display: flex;
