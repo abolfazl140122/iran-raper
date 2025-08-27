@@ -5,18 +5,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// --- Type Definitions ---
-interface LevelData {
-  level: number;
-  question: string;
-  options: string[];
-  answer: string;
-}
-
-interface PlayerProgress {
-  unlockedLevel: number;
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
   // --- Constants ---
   const LEVEL_TIME = 20; // seconds
@@ -26,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const progressBar = document.getElementById('progress-bar');
   const statusText = document.getElementById('status-text');
   const loaderContainer = document.getElementById('loader-container');
-  const backgroundAnimation = document.querySelector('.background-animation') as HTMLElement;
+  const backgroundAnimation = document.querySelector('.background-animation');
   
   const mainContent = document.getElementById('main-content');
   const screens = {
@@ -61,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modalMapBtn = document.getElementById('modal-map-btn');
 
 
-  // --- Type Guard for Elements ---
+  // --- Element Check ---
   if (!loadingScreen || !progressBar || !statusText || !mainContent || !loaderContainer || !backgroundAnimation ||
       !screens.mainMenu || !screens.chapterSelect || !screens.levelSelect || !screens.game || !startGameBtn || 
       !settingsBtn || !backToMainBtn || !chapterGrid || !levelSelectTitle || !levelGrid || !backToChaptersBtn ||
@@ -72,10 +60,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Game State ---
-  let loadingInterval: ReturnType<typeof setInterval> | null = null;
-  let timerInterval: ReturnType<typeof setInterval> | null = null;
-  let gameData: LevelData[] = [];
-  let playerProgress: PlayerProgress = { unlockedLevel: 1 };
+  let loadingInterval = null;
+  let timerInterval = null;
+  let gameData = [];
+  let playerProgress = { unlockedLevel: 1 };
   let currentLevel = 0;
 
   // --- Game Data & Progress ---
@@ -103,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Screen Navigation ---
-  function navigateTo(screenName: keyof typeof screens) {
+  function navigateTo(screenName) {
     clearTimer(); // Always clear timer on navigation
     Object.values(screens).forEach(screen => screen?.classList.remove('is-visible'));
     Object.values(screens).forEach(screen => screen?.classList.add('hidden'));
@@ -116,11 +104,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Loading Screen Logic ---
+  function showOfflineMessage() {
+    if (loadingInterval) clearInterval(loadingInterval);
+    loadingInterval = null;
+    statusText.textContent = 'اتصال به اینترنت برقرار نیست. لطفا وصل شوید و دوباره تلاش کنید.';
+    statusText.classList.add('error');
+    loaderContainer.style.display = 'none';
+  }
+
   function startLoading() {
     if (loadingInterval) return;
     statusText.textContent = 'در حال بارگذاری...';
     statusText.classList.remove('error');
-    loaderContainer!.style.display = 'block';
+    loaderContainer.style.display = 'block';
     progressBar.style.width = '0%';
     
     let progress = 0;
@@ -144,9 +140,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, { once: true });
   }
   
-  async function initializeApp() {
-    await loadGameData();
-    startLoading();
+  async function checkConnection() {
+    if (navigator.onLine) {
+      await loadGameData();
+      startLoading();
+    } else {
+      showOfflineMessage();
+    }
   }
 
   // --- Timer Logic ---
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Game Logic ---
-  function populateLevelGrid(chapterTitle: string) {
+  function populateLevelGrid(chapterTitle) {
     levelGrid.innerHTML = '';
     levelSelectTitle.textContent = chapterTitle;
 
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function selectChapter(chapterElement: HTMLElement) {
+  function selectChapter(chapterElement) {
     if (chapterElement.classList.contains('disabled')) return;
     const chapterNumber = chapterElement.dataset.chapter;
     const chapterTitle = chapterElement.dataset.title || `فصل ${chapterNumber}`;
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function startLevel(levelNumber: number) {
+  function startLevel(levelNumber) {
     const levelData = gameData.find(l => l.level === levelNumber);
     if (!levelData) {
       console.error(`Level ${levelNumber} data not found!`);
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(startTimer, 500); // Start timer after screen transition animation
   }
   
-  function handleAnswer(button: HTMLButtonElement, selectedAnswer: string, correctAnswer: string) {
+  function handleAnswer(button, selectedAnswer, correctAnswer) {
     clearTimer();
     const allButtons = answersContainer.querySelectorAll('.answer-button');
     allButtons.forEach(btn => btn.classList.add('disabled'));
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
   
-  function showFeedbackModal(isCorrect: boolean, isTimeUp: boolean) {
+  function showFeedbackModal(isCorrect, isTimeUp) {
     if (isTimeUp) {
       modalTitle.textContent = "وقت تموم شد!";
       modalTitle.className = 'incorrect';
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedbackModal.classList.add('hidden');
   }
 
-  function handleParallax(event: MouseEvent) {
+  function handleParallax(event) {
       const { clientX, clientY } = event;
       const { innerWidth, innerHeight } = window;
       const moveX = (clientX - innerWidth / 2) / 40;
@@ -319,22 +319,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   startGameBtn.addEventListener('click', () => navigateTo('chapterSelect'));
   backToMainBtn.addEventListener('click', () => navigateTo('mainMenu'));
   backToChaptersBtn.addEventListener('click', () => navigateTo('chapterSelect'));
-  backToMapInGameBtn.addEventListener('click', () => {
-    const chapterTitle = levelSelectTitle.textContent || "یاس";
-    populateLevelGrid(chapterTitle);
-    navigateTo('levelSelect');
-  });
+  backToMapInGameBtn.addEventListener('click', () => navigateTo('levelSelect'));
 
   
   settingsBtn.addEventListener('click', () => alert('صفحه تنظیمات در دست ساخت است!'));
   
   chapterGrid.addEventListener('click', (event) => {
-    const chapterCard = (event.target as HTMLElement).closest('.chapter-card') as HTMLElement;
+    const chapterCard = event.target.closest('.chapter-card');
     if (chapterCard) selectChapter(chapterCard);
   });
 
   levelGrid.addEventListener('click', (event) => {
-    const levelButton = (event.target as HTMLElement).closest('.level-button') as HTMLElement;
+    const levelButton = event.target.closest('.level-button');
     if (levelButton && !levelButton.classList.contains('locked')) {
         const levelNumber = parseInt(levelButton.dataset.level || '0');
         startLevel(levelNumber);
@@ -358,9 +354,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     navigateTo('levelSelect');
   });
   
+  window.addEventListener('online', checkConnection);
+  window.addEventListener('offline', showOfflineMessage);
   window.addEventListener('mousemove', handleParallax);
 
   // --- Initialisation ---
   loadProgress();
-  initializeApp();
+  checkConnection();
 });
