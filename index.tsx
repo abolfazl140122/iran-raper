@@ -1,3 +1,4 @@
+
 /**
  * @license
  * Copyright 2025 Google LLC
@@ -14,6 +15,7 @@ interface LevelData {
 
 interface PlayerProgress {
   unlockedLevel: number;
+  playerName?: string;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -34,6 +36,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     levelSelect: document.getElementById('level-select-screen'),
     game: document.getElementById('game-screen'),
   };
+
+  const nameEntryContainer = document.getElementById('name-entry-container');
+  const playerNameInput = document.getElementById('player-name-input') as HTMLInputElement;
+  const continueBtn = document.getElementById('continue-btn');
+  const welcomeContainer = document.getElementById('welcome-container');
+  const welcomeMessage = document.getElementById('welcome-message');
+  const mainMenuButtons = document.getElementById('main-menu-buttons');
+  const changeNameBtn = document.getElementById('change-name-btn');
 
   const startGameBtn = document.getElementById('start-game-btn');
   const settingsBtn = document.getElementById('settings-btn');
@@ -65,7 +75,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       !screens.mainMenu || !screens.chapterSelect || !screens.levelSelect || !screens.game || !startGameBtn || 
       !settingsBtn || !backToMainBtn || !chapterGrid || !levelSelectTitle || !levelGrid || !backToChaptersBtn ||
       !gameScreen || !timerBarProgress || !questionTitle || !questionText || !answersContainer || !backToMapInGameBtn ||
-      !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn) {
+      !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn ||
+      !nameEntryContainer || !playerNameInput || !continueBtn || !welcomeContainer || !welcomeMessage || !mainMenuButtons || !changeNameBtn
+      ) {
     console.error('Essential UI elements not found!');
     return;
   }
@@ -98,6 +110,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const savedProgress = localStorage.getItem('iranRapProgress');
     if (savedProgress) {
       playerProgress = JSON.parse(savedProgress);
+    }
+  }
+
+  // --- Main Menu Setup ---
+  function setupMainMenu() {
+    if (playerProgress.playerName) {
+      welcomeMessage.innerHTML = `خوش آمدی، <span>${playerProgress.playerName}</span>!`;
+      nameEntryContainer.classList.add('hidden');
+      welcomeContainer.classList.remove('hidden');
+      mainMenuButtons.classList.remove('hidden');
+    } else {
+      nameEntryContainer.classList.remove('hidden');
+      welcomeContainer.classList.add('hidden');
+      mainMenuButtons.classList.add('hidden');
+      playerNameInput.focus();
     }
   }
 
@@ -315,6 +342,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Event Listeners ---
+  continueBtn.addEventListener('click', () => {
+    const name = playerNameInput.value.trim();
+    if (name) {
+      playerProgress.playerName = name;
+      saveProgress();
+      setupMainMenu();
+    } else {
+        playerNameInput.classList.add('shake');
+        setTimeout(() => playerNameInput.classList.remove('shake'), 500);
+    }
+  });
+  
+  playerNameInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      continueBtn.click();
+    }
+  });
+
+  changeNameBtn.addEventListener('click', () => {
+    playerProgress.playerName = '';
+    saveProgress();
+    setupMainMenu();
+  });
+
   startGameBtn.addEventListener('click', () => navigateTo('chapterSelect'));
   backToMainBtn.addEventListener('click', () => navigateTo('mainMenu'));
   backToChaptersBtn.addEventListener('click', () => navigateTo('chapterSelect'));
@@ -363,5 +414,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- Initialisation ---
   loadProgress();
+  setupMainMenu();
   initializeApp();
 });

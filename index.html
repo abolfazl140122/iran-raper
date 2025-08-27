@@ -26,8 +26,21 @@
     <!-- Main Menu -->
     <div id="main-menu">
         <h1 class="menu-title">Iran Rap</h1>
-        <button id="start-game-btn" class="menu-button">شروع بازی</button>
-        <button id="settings-btn" class="menu-button">تنظیمات</button>
+        
+        <div id="name-entry-container">
+          <input type="text" id="player-name-input" class="menu-input" placeholder="نام خود را وارد کنید..." aria-label="Player Name"/>
+          <button id="continue-btn" class="menu-button">ادامه</button>
+        </div>
+    
+        <div id="welcome-container" class="hidden">
+            <h2 id="welcome-message"></h2>
+            <button id="change-name-btn" class="link-button">تغییر نام</button>
+        </div>
+    
+        <div id="main-menu-buttons" class="hidden">
+          <button id="start-game-btn" class="menu-button">شروع بازی</button>
+          <button id="settings-btn" class="menu-button">تنظیمات</button>
+        </div>
     </div>
 
     <!-- Chapter Selection -->
@@ -110,6 +123,14 @@
         levelSelect: document.getElementById('level-select-screen'),
         game: document.getElementById('game-screen'),
       };
+      
+      const nameEntryContainer = document.getElementById('name-entry-container');
+      const playerNameInput = document.getElementById('player-name-input');
+      const continueBtn = document.getElementById('continue-btn');
+      const welcomeContainer = document.getElementById('welcome-container');
+      const welcomeMessage = document.getElementById('welcome-message');
+      const mainMenuButtons = document.getElementById('main-menu-buttons');
+      const changeNameBtn = document.getElementById('change-name-btn');
 
       const startGameBtn = document.getElementById('start-game-btn');
       const settingsBtn = document.getElementById('settings-btn');
@@ -141,7 +162,9 @@
           !screens.mainMenu || !screens.chapterSelect || !screens.levelSelect || !screens.game || !startGameBtn || 
           !settingsBtn || !backToMainBtn || !chapterGrid || !levelSelectTitle || !levelGrid || !backToChaptersBtn ||
           !gameScreen || !timerBarProgress || !questionTitle || !questionText || !answersContainer || !backToMapInGameBtn ||
-          !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn) {
+          !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn ||
+          !nameEntryContainer || !playerNameInput || !continueBtn || !welcomeContainer || !welcomeMessage || !mainMenuButtons || !changeNameBtn
+          ) {
         console.error('Essential UI elements not found!');
         return;
       }
@@ -174,6 +197,21 @@
         const savedProgress = localStorage.getItem('iranRapProgress');
         if (savedProgress) {
           playerProgress = JSON.parse(savedProgress);
+        }
+      }
+
+      // --- Main Menu Setup ---
+      function setupMainMenu() {
+        if (playerProgress.playerName) {
+          welcomeMessage.innerHTML = `خوش آمدی، <span>${playerProgress.playerName}</span>!`;
+          nameEntryContainer.classList.add('hidden');
+          welcomeContainer.classList.remove('hidden');
+          mainMenuButtons.classList.remove('hidden');
+        } else {
+          nameEntryContainer.classList.remove('hidden');
+          welcomeContainer.classList.add('hidden');
+          mainMenuButtons.classList.add('hidden');
+          playerNameInput.focus();
         }
       }
 
@@ -391,6 +429,30 @@
       }
 
       // --- Event Listeners ---
+      continueBtn.addEventListener('click', () => {
+        const name = playerNameInput.value.trim();
+        if (name) {
+          playerProgress.playerName = name;
+          saveProgress();
+          setupMainMenu();
+        } else {
+            playerNameInput.classList.add('shake');
+            setTimeout(() => playerNameInput.classList.remove('shake'), 500);
+        }
+      });
+      
+      playerNameInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+          continueBtn.click();
+        }
+      });
+
+      changeNameBtn.addEventListener('click', () => {
+        playerProgress.playerName = '';
+        saveProgress();
+        setupMainMenu();
+      });
+
       startGameBtn.addEventListener('click', () => navigateTo('chapterSelect'));
       backToMainBtn.addEventListener('click', () => navigateTo('mainMenu'));
       backToChaptersBtn.addEventListener('click', () => navigateTo('chapterSelect'));
@@ -439,6 +501,7 @@
 
       // --- Initialisation ---
       loadProgress();
+      setupMainMenu();
       initializeApp();
     });
   </script>
