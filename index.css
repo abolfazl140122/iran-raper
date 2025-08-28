@@ -1,6 +1,4 @@
 
-
-
 /* Basic reset and setup */
 :root {
   --background-color: #121212;
@@ -383,6 +381,13 @@ body {
     position: relative;
     will-change: transform;
     overflow: hidden;
+    /* New styles for robust layout */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
 }
 
 .chapter-card::before {
@@ -425,13 +430,10 @@ body {
 }
 
 .soon-text {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
     font-size: 0.9rem;
     font-weight: 400;
     color: var(--primary-color);
+    line-height: 1.2;
 }
 
 /* Level Selection Screen */
