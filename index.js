@@ -8,6 +8,23 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // --- Constants ---
   const LEVEL_TIME = 20; // seconds
+  const GENERATIONS = {
+    '1': {
+        name: 'نسل ۱',
+        rappers: {
+            'yas': { name: 'یاس', source: 'yas.json' },
+            'pishro': { name: 'پیشرو', source: 'pishro.json' },
+            'hichkas': { name: 'هیچکس', source: 'hichkas.json' },
+            'bahram': { name: 'بهرام', source: 'bahram.json' },
+            'hossein': { name: 'حصین', source: 'hossein.json' },
+        }
+    },
+    '2': { name: 'نسل ۲', rappers: {} }, // Will be disabled
+    '3': { name: 'نسل ۳', rappers: {} }, // Will be disabled
+    '4': { name: 'نسل ۴', rappers: {} }, // Will be disabled
+    '5': { name: 'نسل ۵', rappers: {} }, // Will be disabled
+  };
+
 
   // --- Element Cache ---
   const loadingScreen = document.getElementById('loading-screen');
@@ -19,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const mainContent = document.getElementById('main-content');
   const screens = {
     mainMenu: document.getElementById('main-menu'),
-    chapterSelect: document.getElementById('chapter-select-screen'),
+    generationSelect: document.getElementById('generation-select-screen'),
     levelSelect: document.getElementById('level-select-screen'),
     game: document.getElementById('game-screen'),
   };
@@ -35,14 +52,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const startGameBtn = document.getElementById('start-game-btn');
   const settingsBtn = document.getElementById('settings-btn');
   const backToMainBtn = document.getElementById('back-to-main-btn');
-  const chapterGrid = document.getElementById('chapter-grid');
-
+  const generationGrid = document.getElementById('generation-grid');
+  
   const levelSelectTitle = document.getElementById('level-select-title');
   const levelProgressContainer = document.getElementById('level-progress-container');
   const levelProgressText = document.getElementById('level-progress-text');
   const levelProgressBar = document.getElementById('level-progress-bar');
   const levelGrid = document.getElementById('level-grid');
-  const backToChaptersBtn = document.getElementById('back-to-chapters-btn');
+  const backToGenerationsBtn = document.getElementById('back-to-generations-btn');
 
   const gameScreen = document.getElementById('game-screen');
   const timerBarProgress = document.getElementById('timer-bar-progress');
@@ -62,8 +79,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- Element Check ---
   if (!loadingScreen || !progressBar || !statusText || !mainContent || !loaderContainer || !backgroundAnimation ||
-      !screens.mainMenu || !screens.chapterSelect || !screens.levelSelect || !screens.game || !startGameBtn || 
-      !settingsBtn || !backToMainBtn || !chapterGrid || !levelSelectTitle || !levelGrid || !backToChaptersBtn ||
+      !screens.mainMenu || !screens.generationSelect || !screens.levelSelect || !screens.game || 
+      !startGameBtn || !settingsBtn || !backToMainBtn || !generationGrid || !levelSelectTitle || !levelGrid || !backToGenerationsBtn ||
       !levelProgressContainer || !levelProgressText || !levelProgressBar ||
       !gameScreen || !timerBarProgress || !questionTitle || !questionText || !answersContainer || !backToMapInGameBtn ||
       !feedbackModal || !modalTitle || !modalMessage || !modalNextBtn || !modalRetryBtn || !modalMapBtn ||
@@ -77,9 +94,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let loadingInterval = null;
   let timerInterval = null;
   let gameData = [];
-  let playerProgress = { chapters: {} };
+  let playerProgress = { generations: {} };
   let currentLevel = 0;
-  let currentChapterId = '';
+  let currentGenerationId = '';
+  let currentGenerationInfo = null;
   let currentQuestion = null;
 
 
@@ -91,26 +109,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   function loadProgress() {
       const savedProgress = localStorage.getItem('iranRapProgress');
       if (savedProgress) {
-          const progress = JSON.parse(savedProgress);
-          // Backward compatibility: Convert old progress format
-          if (progress.unlockedLevel && !progress.chapters) {
-              playerProgress = {
-                  playerName: progress.playerName,
-                  chapters: {
-                      'yas': { completedLevels: progress.unlockedLevel - 1, completedQuestions: [] }
+          let progress = JSON.parse(savedProgress);
+
+          // Migration from old per-rapper progress to new per-generation progress
+          if (progress.rappers && !progress.generations) {
+              const newProgress = { playerName: progress.playerName, generations: {} };
+              
+              // Aggregate progress for Generation 1
+              const gen1Rappers = Object.keys(GENERATIONS['1'].rappers);
+              let completedLevels = 0;
+              let completedQuestions = [];
+
+              for (const rapperId of gen1Rappers) {
+                  if (progress.rappers[rapperId]) {
+                      completedLevels += progress.rappers[rapperId].completedLevels || 0;
+                      if (Array.isArray(progress.rappers[rapperId].completedQuestions)) {
+                          completedQuestions = completedQuestions.concat(progress.rappers[rapperId].completedQuestions);
+                      }
                   }
+              }
+              
+              newProgress.generations['1'] = {
+                  completedLevels: completedLevels,
+                  completedQuestions: [...new Set(completedQuestions)] // Remove duplicates
               };
-              saveProgress(); // Save in new format
-          } else {
-              playerProgress = progress;
+
+              progress = newProgress;
+              localStorage.setItem('iranRapProgress', JSON.stringify(progress)); // Save in new format
           }
-          // Ensure chapters object exists for robustness
-          if (!playerProgress.chapters) {
-              playerProgress.chapters = {};
+
+          playerProgress = progress;
+          if (!playerProgress.generations) {
+              playerProgress.generations = {};
           }
       } else {
-          // Default for new players
-          playerProgress = { chapters: {} };
+          playerProgress = { generations: {} };
       }
   }
 
@@ -129,59 +162,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function updateChapterSelectScreen() {
-      const isSpecialUser = playerProgress.playerName === 'abolfazl1401';
-  
-      // --- Chapter 2 Logic ---
-      const yasProgress = playerProgress.chapters['yas'] || { completedLevels: 0 };
-      const yasChapterCard = document.querySelector('.chapter-card[data-source="yas.json"]');
-      const pishroChapterCard = document.querySelector('.chapter-card[data-source="pishro.json"]');
-      const pishroSoonText = pishroChapterCard.querySelector('.soon-text');
-  
-      if (!yasChapterCard || !pishroChapterCard || !pishroSoonText) return;
-  
-      const totalYasLevels = parseInt(yasChapterCard.dataset.totalLevels || '200');
-      const isChapter1Completed = yasProgress.completedLevels >= totalYasLevels;
-  
-      if (isChapter1Completed || isSpecialUser) {
-          pishroChapterCard.classList.remove('disabled');
-          pishroSoonText.classList.add('hidden');
-      } else {
-          pishroChapterCard.classList.add('disabled');
-          pishroSoonText.textContent = `ابتدا فصل ۱ را کامل کنید`;
-          pishroSoonText.classList.remove('hidden');
-      }
-  
-      // --- Chapter 3 Logic ---
-      const pishroProgress = playerProgress.chapters['pishro'] || { completedLevels: 0 };
-      const moeinChapterCard = document.querySelector('.chapter-card[data-source="moein.json"]');
-      const moeinSoonText = moeinChapterCard.querySelector('.soon-text');
-      
-      if (!moeinChapterCard || !moeinSoonText) return;
-  
-      const totalPishroLevels = parseInt(pishroChapterCard.dataset.totalLevels || '300');
-      const isChapter2Completed = pishroProgress.completedLevels >= totalPishroLevels;
-  
-      if (isChapter2Completed || isSpecialUser) {
-          moeinChapterCard.classList.remove('disabled');
-          moeinSoonText.classList.add('hidden');
-      } else {
-          moeinChapterCard.classList.add('disabled');
-          moeinSoonText.textContent = `ابتدا فصل ۲ را کامل کنید`;
-          moeinSoonText.classList.remove('hidden');
-      }
-  }
-
   // --- Screen Navigation ---
   function navigateTo(screenName) {
     clearTimer(); // Always clear timer on navigation
     Object.values(screens).forEach(screen => screen?.classList.remove('is-visible'));
     Object.values(screens).forEach(screen => screen?.classList.add('hidden'));
     
-    if (screenName === 'chapterSelect') {
-        updateChapterSelectScreen();
-    }
-
     const targetScreen = screens[screenName];
     if (targetScreen) {
       targetScreen.classList.remove('hidden');
@@ -271,35 +257,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Game Logic ---
-  function updateLevelProgressDisplay(chapterId) {
-    const totalLevels = gameData.length;
-    const chapterProgress = playerProgress.chapters[chapterId] || { completedLevels: 0 };
-    const completedLevels = chapterProgress.completedLevels;
+  function updateLevelProgressDisplay(generationId, totalLevels) {
+    const generationProgress = playerProgress.generations[generationId] || { completedLevels: 0 };
+    const completedLevels = generationProgress.completedLevels;
 
     if (totalLevels > 0) {
         const percentage = (completedLevels / totalLevels) * 100;
         levelProgressBar.style.width = `${percentage}%`;
 
         if (completedLevels >= totalLevels) {
-             levelProgressText.textContent = `!شما این فصل را تمام کرده‌اید (${totalLevels} / ${totalLevels})`;
+             levelProgressText.textContent = `!شما این بخش را تمام کرده‌اید (${totalLevels} / ${totalLevels})`;
         } else {
             const currentLevelForDisplay = completedLevels + 1;
             levelProgressText.textContent = `مرحله ${currentLevelForDisplay} از ${totalLevels}`;
         }
     } else {
-        levelProgressText.textContent = `فصل خالی است`;
+        levelProgressText.textContent = `بخشی یافت نشد`;
         levelProgressBar.style.width = `0%`;
     }
   }
 
-  function populateLevelGrid(chapterTitle, chapterId) {
+  function populateLevelGrid(generationId, totalLevels) {
     levelGrid.innerHTML = '';
-    levelSelectTitle.textContent = chapterTitle;
-    updateLevelProgressDisplay(chapterId);
-    const chapterProgress = playerProgress.chapters[chapterId] || { completedLevels: 0 };
-    const unlockedLevel = chapterProgress.completedLevels + 1;
+    const generationInfo = GENERATIONS[generationId];
+    levelSelectTitle.textContent = generationInfo.name;
+    updateLevelProgressDisplay(generationId, totalLevels);
+    
+    const generationProgress = playerProgress.generations[generationId] || { completedLevels: 0 };
+    const unlockedLevel = generationProgress.completedLevels + 1;
 
-    for (let i = 1; i <= gameData.length; i++) {
+    for (let i = 1; i <= totalLevels; i++) {
         const levelButton = document.createElement('div');
         levelButton.classList.add('level-button');
         levelButton.dataset.level = i.toString();
@@ -318,50 +305,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  async function selectChapter(chapterElement) {
-    if (chapterElement.classList.contains('disabled')) return;
-    const chapterNumber = chapterElement.dataset.chapter;
-    const chapterTitle = chapterElement.dataset.title || `فصل ${chapterNumber}`;
-    const dataSource = chapterElement.dataset.source;
-
-    if (!dataSource) {
-      alert(`فصل ${chapterNumber} به زودی عرضه می‌شود!`);
+  async function loadGenerationData(generationId) {
+    const generationInfo = GENERATIONS[generationId];
+    if (!generationInfo || Object.keys(generationInfo.rappers).length === 0) {
+      alert('این نسل به زودی اضافه خواهد شد!');
       return;
     }
-    const chapterId = dataSource.replace('.json', '');
-    currentChapterId = chapterId;
-
-    mainContent.classList.add('is-loading-chapter');
     
+    currentGenerationId = generationId;
+    currentGenerationInfo = generationInfo;
+    mainContent.classList.add('is-loading-data');
+
     try {
-      const response = await fetch(dataSource);
-      if (!response.ok) throw new Error(`Network response was not ok for ${dataSource}`);
-      gameData = await response.json();
-      
-      populateLevelGrid(chapterTitle, chapterId);
-      navigateTo('levelSelect');
+        const fetchPromises = Object.values(generationInfo.rappers).map(rapper => fetch(rapper.source).then(res => res.json()));
+        const allRapperQuestions = await Promise.all(fetchPromises);
+        
+        // Combine all questions into one array and shuffle it
+        gameData = allRapperQuestions.flat().sort(() => Math.random() - 0.5);
+        
+        if (!playerProgress.generations[generationId]) {
+            playerProgress.generations[generationId] = { completedLevels: 0, completedQuestions: [] };
+        }
+
+        populateLevelGrid(generationId, gameData.length);
+        navigateTo('levelSelect');
     } catch (error) {
-      console.error(`Failed to load chapter data from ${dataSource}:`, error);
-      alert(`خطا در بارگذاری اطلاعات فصل ${chapterNumber}. لطفا اتصال اینترنت خود را بررسی کنید.`);
+        console.error(`Failed to load data for Generation ${generationId}:`, error);
+        alert(`خطا در بارگذاری اطلاعات نسل ${generationId}. لطفا اتصال اینترنت خود را بررسی کنید.`);
     } finally {
-      mainContent.classList.remove('is-loading-chapter');
+        mainContent.classList.remove('is-loading-data');
     }
   }
 
   function getNextQuestion(isRetry) {
-      const chapterProgress = playerProgress.chapters[currentChapterId];
+      const generationProgress = playerProgress.generations[currentGenerationId];
+      let availableQuestions = gameData.filter(q => !generationProgress.completedQuestions.includes(q.question));
 
-      // Start with a pool of questions that have not been correctly answered yet.
-      let availableQuestions = gameData.filter(q => !chapterProgress.completedQuestions.includes(q.question));
-
-      // If all questions are answered, reset the pool to allow replaying.
+      // If all questions have been played once, reset the completed list for replayability
       if (availableQuestions.length === 0 && gameData.length > 0) {
-          chapterProgress.completedQuestions = []; // Reset for replayability
+          generationProgress.completedQuestions = [];
           saveProgress();
           availableQuestions = [...gameData];
       }
-
-      // On retry, if possible, pick a question different from the last one.
+      
+      // If retrying, try to serve a different question than the last one, if possible
       if (isRetry && currentQuestion && availableQuestions.length > 1) {
           const otherQuestions = availableQuestions.filter(q => q.question !== currentQuestion.question);
           if (otherQuestions.length > 0) {
@@ -376,11 +363,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function startLevel(levelNumber, isRetry = false) {
-    // Ensure progress object exists for the current chapter
-    if (!playerProgress.chapters[currentChapterId]) {
-        playerProgress.chapters[currentChapterId] = { completedLevels: 0, completedQuestions: [] };
-    }
-    
     if (!isRetry) {
         currentQuestion = null;
     }
@@ -389,8 +371,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!levelData) {
         console.error("Could not find a question to display.");
-        alert("مرحله‌ای برای نمایش یافت نشد. لطفا به صفحه فصل‌ها بازگردید.");
-        navigateTo('chapterSelect');
+        alert("مرحله‌ای برای نمایش یافت نشد. لطفا به صفحه قبل بازگردید.");
+        navigateTo('generationSelect');
         return;
     }
     
@@ -405,12 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     questionText.textContent = levelData.question;
     answersContainer.innerHTML = '';
 
-    // Shuffle options to randomize their display order
-    const shuffledOptions = [...levelData.options];
-    for (let i = shuffledOptions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
-    }
+    const shuffledOptions = [...levelData.options].sort(() => Math.random() - 0.5);
 
     shuffledOptions.forEach(option => {
       const button = document.createElement('button');
@@ -432,17 +409,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (selectedAnswer === correctAnswer) {
         button.classList.add('correct');
         
-        const chapterId = currentChapterId;
-        const chapterProgress = playerProgress.chapters[chapterId];
+        const generationProgress = playerProgress.generations[currentGenerationId];
 
-        // Add question to completed list if it's not already there
-        if (currentQuestion && !chapterProgress.completedQuestions.includes(currentQuestion.question)) {
-            chapterProgress.completedQuestions.push(currentQuestion.question);
+        // Add question to completed list to avoid immediate repetition
+        if (currentQuestion && !generationProgress.completedQuestions.includes(currentQuestion.question)) {
+            generationProgress.completedQuestions.push(currentQuestion.question);
         }
         
-        // If it was the latest unlocked level, increment progress
-        if (currentLevel === chapterProgress.completedLevels + 1) {
-            chapterProgress.completedLevels++;
+        // Only increment completed levels if this is the next level in sequence
+        if (currentLevel === generationProgress.completedLevels + 1) {
+            generationProgress.completedLevels++;
         }
         
         saveProgress();
@@ -472,15 +448,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       modalRetryBtn.classList.add('hidden');
       modalNextBtn.classList.remove('hidden');
       
-      const chapterProgress = playerProgress.chapters[currentChapterId];
-      if (currentLevel >= gameData.length || chapterProgress.completedLevels >= gameData.length) {
+      const generationProgress = playerProgress.generations[currentGenerationId];
+      if (generationProgress.completedLevels >= gameData.length) {
         modalNextBtn.classList.add('hidden');
-        modalMessage.textContent = "تو این فصل رو تموم کردی! آفرین.";
+        modalMessage.textContent = `تو بخش ${currentGenerationInfo.name} رو تموم کردی! آفرین.`;
       }
     } else {
       modalTitle.textContent = "اشتباه بود!";
       modalTitle.className = 'incorrect';
-      modalMessage.textContent = "دوباره تلاش کن، مطمئنم میتونی.";
+      modalMessage.textContent = "دوباره تلاش کن, مطمئنم میتونی.";
       modalRetryBtn.classList.remove('hidden');
       modalNextBtn.classList.add('hidden');
     }
@@ -524,23 +500,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupMainMenu();
   });
 
-  startGameBtn.addEventListener('click', () => navigateTo('chapterSelect'));
+  startGameBtn.addEventListener('click', () => navigateTo('generationSelect'));
   backToMainBtn.addEventListener('click', () => navigateTo('mainMenu'));
-  backToChaptersBtn.addEventListener('click', () => navigateTo('chapterSelect'));
+  backToGenerationsBtn.addEventListener('click', () => navigateTo('generationSelect'));
   
   backToMapInGameBtn.addEventListener('click', () => {
     loadProgress();
-    const chapterTitle = levelSelectTitle.textContent || "انتخاب مرحله";
-    populateLevelGrid(chapterTitle, currentChapterId);
+    populateLevelGrid(currentGenerationId, gameData.length);
     navigateTo('levelSelect');
   });
 
   
   settingsBtn.addEventListener('click', () => alert('صفحه تنظیمات در دست ساخت است!'));
   
-  chapterGrid.addEventListener('click', (event) => {
-    const chapterCard = event.target.closest('.chapter-card');
-    if (chapterCard) selectChapter(chapterCard);
+  generationGrid.addEventListener('click', (event) => {
+    const card = event.target.closest('.chapter-card');
+    if (card && !card.classList.contains('disabled')) {
+        const genNumber = card.dataset.generation;
+        loadGenerationData(genNumber);
+    }
   });
 
   levelGrid.addEventListener('click', (event) => {
@@ -564,14 +542,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   modalMapBtn.addEventListener('click', () => {
     hideFeedbackModal();
     loadProgress();
-    const chapterTitle = levelSelectTitle.textContent || "انتخاب مرحله";
-    populateLevelGrid(chapterTitle, currentChapterId);
+    populateLevelGrid(currentGenerationId, gameData.length);
     navigateTo('levelSelect');
   });
   
   window.addEventListener('mousemove', handleParallax);
   window.addEventListener('online', () => {
-    // If loading screen is visible and not already fading out, try to initialize again
     if (loadingScreen && !loadingScreen.classList.contains('fade-out')) {
         initializeApp();
     }

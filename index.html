@@ -43,26 +43,22 @@
         </div>
     </div>
 
-    <!-- Chapter Selection -->
-    <div id="chapter-select-screen" class="hidden">
-        <h2 class="menu-title" id="chapter-select-title">فصل‌ها را انتخاب کنید</h2>
-        <div id="chapter-grid">
-            <div class="chapter-card" data-chapter="1" data-title="یاس" data-source="yas.json" data-total-levels="200"><span>فصل ۱</span></div>
-            <div class="chapter-card disabled" data-chapter="2" data-title="پیشرو" data-source="pishro.json" data-total-levels="300">
-              <span>فصل ۲</span>
-              <span class="soon-text">ابتدا فصل ۱ را کامل کنید</span>
-            </div>
-            <div class="chapter-card disabled" data-chapter="3" data-title="معین" data-source="moein.json" data-total-levels="50">
-              <span>فصل ۳</span>
-              <span class="soon-text">ابتدا فصل ۲ را کامل کنید</span>
-            </div>
+    <!-- Generation Selection -->
+    <div id="generation-select-screen" class="hidden">
+        <h2 class="menu-title" id="generation-select-title">نسل‌ها را انتخاب کنید</h2>
+        <div id="generation-grid">
+            <div class="chapter-card" data-generation="1"><span>نسل ۱</span></div>
+            <div class="chapter-card disabled" data-generation="2"><span>نسل ۲</span><span class="soon-text">به زودی...</span></div>
+            <div class="chapter-card disabled" data-generation="3"><span>نسل ۳</span><span class="soon-text">به زودی...</span></div>
+            <div class="chapter-card disabled" data-generation="4"><span>نسل ۴</span><span class="soon-text">به زودی...</span></div>
+            <div class="chapter-card disabled" data-generation="5"><span>نسل ۵</span><span class="soon-text">به زودی...</span></div>
         </div>
         <button id="back-to-main-btn" class="menu-button secondary">بازگشت</button>
     </div>
 
     <!-- Level Selection -->
     <div id="level-select-screen" class="hidden">
-        <h2 class="menu-title" id="level-select-title">یاس</h2>
+        <h2 class="menu-title" id="level-select-title"></h2>
         <div id="level-progress-container">
           <span id="level-progress-text"></span>
           <div id="level-progress-bar-wrapper">
@@ -72,7 +68,7 @@
         <div id="level-grid-container">
           <div id="level-grid"></div>
         </div>
-        <button id="back-to-chapters-btn" class="menu-button secondary">بازگشت به فصل‌ها</button>
+        <button id="back-to-generations-btn" class="menu-button secondary">بازگشت به نسل‌ها</button>
     </div>
 
     <!-- Game Screen -->

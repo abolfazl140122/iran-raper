@@ -1,4 +1,5 @@
 
+
 /* Basic reset and setup */
 :root {
   --background-color: #121212;
@@ -174,8 +175,8 @@ body {
     position: relative;
 }
 
-/* Chapter Loading Overlay */
-#main-content.is-loading-chapter::after {
+/* Data Loading Overlay */
+#main-content.is-loading-data::after {
   content: '';
   position: absolute;
   top: 0;
@@ -188,7 +189,7 @@ body {
   cursor: wait;
 }
 
-#main-content.is-loading-chapter::before {
+#main-content.is-loading-data::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -204,7 +205,7 @@ body {
 }
 
 
-#main-menu, #chapter-select-screen, #level-select-screen, #game-screen {
+#main-menu, #generation-select-screen, #level-select-screen, #game-screen {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -360,8 +361,8 @@ body {
 }
 
 
-/* Chapter Selection Screen */
-#chapter-grid {
+/* Generation Selection Screen */
+#generation-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
@@ -381,7 +382,6 @@ body {
     position: relative;
     will-change: transform;
     overflow: hidden;
-    /* New styles for robust layout */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -728,36 +728,38 @@ body {
 
 /* Screen Animations */
 
-/* Chapter Screen Animation */
-#chapter-select-screen #chapter-select-title,
-#chapter-select-screen .chapter-card,
-#chapter-select-screen #back-to-main-btn {
+/* Generation Screen Animation */
+#generation-select-screen #generation-select-title,
+#generation-select-screen .chapter-card,
+#generation-select-screen #back-to-main-btn {
   opacity: 0;
   animation-fill-mode: forwards;
 }
 
-#chapter-select-screen.is-visible #chapter-select-title {
+#generation-select-screen.is-visible #generation-select-title {
   opacity: 1;
   animation: wipe-in-right 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-#chapter-select-screen.is-visible .chapter-card,
-#chapter-select-screen.is-visible #back-to-main-btn {
+#generation-select-screen.is-visible .chapter-card,
+#generation-select-screen.is-visible #back-to-main-btn {
   animation-name: slide-up-fade-in;
   animation-duration: 0.6s;
   animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-#chapter-select-screen.is-visible .chapter-card:nth-of-type(1) { animation-delay: 0.3s; }
-#chapter-select-screen.is-visible .chapter-card:nth-of-type(2) { animation-delay: 0.4s; }
-#chapter-select-screen.is-visible .chapter-card:nth-of-type(3) { animation-delay: 0.5s; }
-#chapter-select-screen.is-visible #back-to-main-btn { animation-delay: 0.6s; }
+#generation-select-screen.is-visible .chapter-card:nth-of-type(1) { animation-delay: 0.3s; }
+#generation-select-screen.is-visible .chapter-card:nth-of-type(2) { animation-delay: 0.4s; }
+#generation-select-screen.is-visible .chapter-card:nth-of-type(3) { animation-delay: 0.5s; }
+#generation-select-screen.is-visible .chapter-card:nth-of-type(4) { animation-delay: 0.55s; }
+#generation-select-screen.is-visible .chapter-card:nth-of-type(5) { animation-delay: 0.6s; }
+#generation-select-screen.is-visible #back-to-main-btn { animation-delay: 0.7s; }
 
 /* Level Screen Animation */
 #level-select-screen #level-select-title,
 #level-select-screen #level-progress-container,
 #level-select-screen .level-button,
-#level-select-screen #back-to-chapters-btn,
+#level-select-screen #back-to-generations-btn,
 #game-screen #question-title-container,
 #game-screen #timer-bar-container,
 #game-screen #question-text,
@@ -781,14 +783,14 @@ body {
   animation-delay: 0.2s;
 }
 
-#level-select-screen.is-visible #back-to-chapters-btn,
+#level-select-screen.is-visible #back-to-generations-btn,
 #level-select-screen.is-visible .level-button {
   animation-name: slide-up-fade-in;
   animation-duration: 0.5s;
   animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-#level-select-screen.is-visible #back-to-chapters-btn { animation-delay: 0.5s; }
+#level-select-screen.is-visible #back-to-generations-btn { animation-delay: 0.5s; }
 
 /* Game Screen Animation */
 #game-screen.is-visible #question-title-container {
@@ -849,8 +851,8 @@ body {
         font-size: 1.5rem;
     }
 
-    /* Tweak chapter grid */
-    #chapter-grid {
+    /* Tweak generation grid */
+    #generation-grid {
         gap: 12px;
     }
 
@@ -947,7 +949,7 @@ body {
         padding: 20px 10px;
         font-size: 1.1rem;
     }
-    
+
     #level-grid {
         grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
     }
