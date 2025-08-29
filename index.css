@@ -1,6 +1,6 @@
-
-
-/* Basic reset and setup */
+/* ==========================================================================
+   1. VARIABLES & BASIC SETUP
+   ========================================================================== */
 :root {
   --background-color: #121212;
   --text-color: #f0f0f0;
@@ -40,77 +40,9 @@ body::before {
   z-index: -1;
 }
 
-
-/* Loading Screen */
-#loading-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100vw;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  background-color: transparent; /* Show animated background */
-  transition: opacity 0.5s ease-out, visibility 0.5s;
-}
-
-#loading-screen.fade-out {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-#logo {
-  width: 150px;
-  height: auto;
-  margin-bottom: 20px;
-  animation: pulse 2s infinite ease-in-out, glow 2s infinite ease-in-out;
-  filter: drop-shadow(0 0 10px var(--primary-color));
-}
-
-#game-title {
-    font-family: 'Lalezar', cursive;
-    font-size: 3rem;
-    margin: 0 0 20px 0;
-    color: #fff;
-    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 5px rgba(0,0,0,0.5);
-}
-
-#loader-container {
-  width: 80%;
-  max-width: 400px;
-  height: 10px;
-  background-color: var(--loader-bg-color);
-  border-radius: 5px;
-  overflow: hidden;
-  border: 1px solid var(--loader-border-color);
-}
-
-#progress-bar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  border-radius: 5px;
-  transition: width 0.1s linear;
-  box-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--secondary-color);
-  animation: pulse-glow-bar 1.5s infinite ease-in-out;
-}
-
-#status-text {
-  margin-top: 15px;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-  text-shadow: 0 0 3px rgba(0,0,0,0.7);
-}
-
-#status-text.error {
-    color: var(--error-color);
-}
-
-/* Animations */
+/* ==========================================================================
+   2. KEYFRAME ANIMATIONS
+   ========================================================================== */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
@@ -154,78 +86,23 @@ body::before {
   to { transform: rotate(360deg); }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
 
-/* Main Content & Menus */
+/* ==========================================================================
+   3. UTILITY & HELPER CLASSES
+   ========================================================================== */
 .hidden {
   display: none !important;
 }
 
-#main-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    position: relative;
-}
-
-/* Data Loading Overlay */
-#main-content.is-loading-data::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 10;
-  backdrop-filter: blur(4px);
-  cursor: wait;
-}
-
-#main-content.is-loading-data::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50px;
-  height: 50px;
-  margin: -25px 0 0 -25px;
-  border: 5px solid var(--loader-border-color);
-  border-top-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  z-index: 11;
-}
-
-
-#main-menu, #generation-select-screen, #level-select-screen, #game-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 90%;
-    max-width: 800px;
-    height: auto;
-    max-height: 90vh;
-    padding: 40px;
-    box-sizing: border-box;
-    
-    /* Glassmorphism Effect */
-    background: rgba(30, 30, 30, 0.6);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-#main-menu {
-  animation: fadeIn 0.5s ease-out;
-}
-
+/* ==========================================================================
+   4. GENERAL UI COMPONENTS
+   ========================================================================== */
+/* Titles, Buttons, Inputs, Modals etc. */
 .menu-title {
     font-family: 'Lalezar', cursive;
     font-size: 3.5rem;
@@ -293,7 +170,6 @@ body::before {
     box-shadow: 0 0 10px var(--loader-border-color);
 }
 
-/* Name Entry styles */
 .menu-input {
     font-family: 'Vazirmatn', sans-serif;
     font-size: 1.2rem;
@@ -323,6 +199,208 @@ body::before {
     font-weight: 400;
 }
 
+.link-button {
+    font-family: 'Vazirmatn', sans-serif;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.6;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 5px;
+    transition: all 0.3s ease;
+}
+
+.link-button:hover {
+    opacity: 1;
+    text-decoration: underline;
+    color: var(--primary-color);
+}
+
+/* --- Feedback Modal --- */
+#feedback-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: var(--surface-color);
+    padding: 30px 40px;
+    border-radius: 12px;
+    border: 1px solid var(--loader-border-color);
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    animation: slide-up-fade-in 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+#modal-title {
+    font-size: 2.5rem;
+    font-family: 'Lalezar', cursive;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+#modal-title.correct { color: var(--correct-color); }
+#modal-title.incorrect { color: var(--error-color); }
+
+#modal-message {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+#modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* ==========================================================================
+   5. SCREEN LAYOUTS & STYLES
+   ========================================================================== */
+/* --- 5.1 Loading Screen --- */
+#loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background-color: transparent;
+  transition: opacity 0.5s ease-out, visibility 0.5s;
+}
+
+#loading-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#logo {
+  width: 150px;
+  height: auto;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite ease-in-out, glow 2s infinite ease-in-out;
+  filter: drop-shadow(0 0 10px var(--primary-color));
+}
+
+#game-title {
+    font-family: 'Lalezar', cursive;
+    font-size: 3rem;
+    margin: 0 0 20px 0;
+    color: #fff;
+    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 5px rgba(0,0,0,0.5);
+}
+
+#loader-container {
+  width: 80%;
+  max-width: 400px;
+  height: 10px;
+  background-color: var(--loader-bg-color);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid var(--loader-border-color);
+}
+
+#progress-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  border-radius: 5px;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--secondary-color);
+  animation: pulse-glow-bar 1.5s infinite ease-in-out;
+}
+
+#status-text {
+  margin-top: 15px;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 3px rgba(0,0,0,0.7);
+}
+
+#status-text.error {
+    color: var(--error-color);
+}
+
+/* --- 5.2 Main Content & Data Loading Overlay --- */
+#main-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+}
+
+#main-content.is-loading-data::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  cursor: wait;
+}
+
+#main-content.is-loading-data::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  border: 5px solid var(--loader-border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 11;
+}
+
+/* --- 5.3 Shared Screen Container (Glassmorphism) --- */
+.screen-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 90%;
+    max-width: 800px;
+    height: auto;
+    max-height: 90vh;
+    padding: 40px;
+    box-sizing: border-box;
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- 5.4 Main Menu --- */
+#main-menu {
+  animation: fadeIn 0.5s ease-out;
+}
+
 #name-entry-container, #main-menu-buttons {
     display: flex;
     flex-direction: column;
@@ -350,40 +428,26 @@ body::before {
     text-shadow: 0 0 8px var(--primary-color);
 }
 
-.link-button {
-    font-family: 'Vazirmatn', sans-serif;
-    background: none;
-    border: none;
-    color: var(--text-color);
-    opacity: 0.6;
-    cursor: pointer;
-    font-size: 0.9rem;
-    padding: 5px;
-    transition: all 0.3s ease;
-}
-
-.link-button:hover {
-    opacity: 1;
-    text-decoration: underline;
-    color: var(--primary-color);
-}
-
-
-/* Generation Selection Screen */
-#generation-grid {
+/* --- 5.5 Category & Chapter Select Screens --- */
+#category-grid, #chapter-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
+    gap: 20px;
     width: 100%;
     margin-bottom: 30px;
 }
 
-.chapter-card {
+#category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+#chapter-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.category-card, .chapter-card {
     background-color: var(--surface-color);
     border: 1px solid var(--loader-border-color);
     border-radius: 8px;
-    padding: 30px 15px;
-    font-size: 1.5rem;
     font-weight: 700;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
@@ -398,7 +462,17 @@ body::before {
     gap: 4px;
 }
 
-.chapter-card::before {
+.category-card {
+    padding: 40px 20px;
+    font-size: 1.8rem;
+}
+
+.chapter-card {
+    padding: 30px 15px;
+    font-size: 1.5rem;
+}
+
+.category-card::before, .chapter-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -410,17 +484,17 @@ body::before {
   transition: left 0.85s;
 }
 
-.chapter-card:hover::before {
+.category-card:hover::before, .chapter-card:hover::before {
   left: 150%;
 }
 
-.chapter-card:hover {
+.category-card:hover, .chapter-card:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 10px 30px rgba(255, 215, 0, 0.35);
     border-color: var(--primary-color);
 }
 
-.chapter-card:active {
+.category-card:active, .chapter-card:active {
     transform: translateY(-4px) scale(1.0);
 }
 
@@ -444,7 +518,8 @@ body::before {
     line-height: 1.2;
 }
 
-/* Level Selection Screen */
+
+/* --- 5.6 Level Select Screen --- */
 #level-progress-container {
     width: 90%;
     max-width: 450px;
@@ -484,34 +559,18 @@ body::before {
 
 #level-grid-container {
     width: 100%;
-    max-height: 40vh; /* Adjusted for container padding */
+    max-height: 40vh;
     overflow-y: auto;
     padding: 0 15px;
     margin-bottom: 20px;
-    /* Custom Scrollbar for Firefox */
     scrollbar-width: thin;
     scrollbar-color: var(--primary-color) var(--surface-color);
 }
 
-/* Custom Scrollbar for Webkit Browsers */
-#level-grid-container::-webkit-scrollbar {
-  width: 12px;
-}
-
-#level-grid-container::-webkit-scrollbar-track {
-  background: var(--surface-color);
-  border-radius: 10px;
-}
-
-#level-grid-container::-webkit-scrollbar-thumb {
-  background-color: var(--primary-color);
-  border-radius: 10px;
-  border: 3px solid var(--surface-color);
-}
-
-#level-grid-container::-webkit-scrollbar-thumb:hover {
-  background-color: var(--secondary-color);
-}
+#level-grid-container::-webkit-scrollbar { width: 12px; }
+#level-grid-container::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 10px; }
+#level-grid-container::-webkit-scrollbar-thumb { background-color: var(--primary-color); border-radius: 10px; border: 3px solid var(--surface-color); }
+#level-grid-container::-webkit-scrollbar-thumb:hover { background-color: var(--secondary-color); }
 
 #level-grid {
     display: grid;
@@ -534,63 +593,18 @@ body::before {
     position: relative;
 }
 
-.level-button.unlocked {
-    cursor: pointer;
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-}
+.level-button.unlocked { cursor: pointer; border-color: var(--primary-color); color: var(--primary-color); }
+.level-button.unlocked:hover { background-color: var(--primary-color); color: var(--background-color); transform: scale(1.1); box-shadow: 0 0 15px var(--primary-color); }
+.level-button.unlocked:active { transform: scale(1.05); box-shadow: 0 0 10px var(--primary-color) inset; }
 
-.level-button.unlocked:hover {
-    background-color: var(--primary-color);
-    color: var(--background-color);
-    transform: scale(1.1);
-    box-shadow: 0 0 15px var(--primary-color);
-}
+.level-button.completed { cursor: pointer; border-color: var(--correct-color); background-color: rgba(40, 167, 69, 0.2); color: var(--correct-color); }
+.level-button.completed:hover { background-color: var(--correct-color); color: var(--text-color); transform: scale(1.1); box-shadow: 0 0 15px var(--correct-color); }
 
-.level-button.unlocked:active {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px var(--primary-color) inset;
-}
+.level-button.locked { background-color: rgba(30, 30, 30, 0.5); opacity: 0.6; cursor: not-allowed; }
+.level-button.locked::after { content: '🔒'; position: absolute; font-size: 1.2rem; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255, 255, 255, 0.7); opacity: 0.5; transition: all 0.3s ease; }
+.level-button.locked:hover::after { opacity: 1; color: var(--primary-color); text-shadow: 0 0 8px var(--primary-color); }
 
-.level-button.completed {
-    cursor: pointer;
-    border-color: var(--correct-color);
-    background-color: rgba(40, 167, 69, 0.2);
-    color: var(--correct-color);
-}
-.level-button.completed:hover {
-    background-color: var(--correct-color);
-    color: var(--text-color);
-    transform: scale(1.1);
-    box-shadow: 0 0 15px var(--correct-color);
-}
-
-
-.level-button.locked {
-    background-color: rgba(30, 30, 30, 0.5);
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.level-button.locked::after {
-    content: '🔒';
-    position: absolute;
-    font-size: 1.2rem;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: rgba(255, 255, 255, 0.7);
-    opacity: 0.5;
-    transition: all 0.3s ease;
-}
-
-.level-button.locked:hover::after {
-    opacity: 1;
-    color: var(--primary-color);
-    text-shadow: 0 0 8px var(--primary-color);
-}
-
-/* Game Screen */
+/* --- 5.7 Game Screen --- */
 #question-title-container {
   display: flex;
   justify-content: center;
@@ -640,10 +654,6 @@ body::before {
   width: 100%;
 }
 
-#back-to-map-ingame-btn {
-  margin-top: 30px;
-}
-
 .answer-button {
   font-size: 1.1rem;
   padding: 15px;
@@ -661,318 +671,132 @@ body::before {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.answer-button.correct {
-  background-color: var(--correct-color);
-  border-color: var(--correct-color);
-  color: #fff;
-  transform: scale(1.05);
+.answer-button.correct { background-color: var(--correct-color); border-color: var(--correct-color); color: #fff; transform: scale(1.05); }
+.answer-button.incorrect { background-color: var(--error-color); border-color: var(--error-color); color: #fff; animation: shake 0.5s; }
+.answer-button.disabled { pointer-events: none; opacity: 0.7; }
+
+
+/* ==========================================================================
+   6. SCREEN VISIBILITY & TRANSITION ANIMATIONS
+   ========================================================================== */
+.screen-container * {
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+.screen-container.is-visible * {
+    opacity: 1;
 }
 
-.answer-button.incorrect {
-  background-color: var(--error-color);
-  border-color: var(--error-color);
-  color: #fff;
-  animation: shake 0.5s;
-}
-
-.answer-button.disabled {
-    pointer-events: none;
-    opacity: 0.7;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-
-/* Feedback Modal */
-#feedback-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 200;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-    animation: fadeIn 0.3s;
-}
-
-.modal-content {
-    background-color: var(--surface-color);
-    padding: 30px 40px;
-    border-radius: 12px;
-    border: 1px solid var(--loader-border-color);
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    animation: slide-up-fade-in 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-#modal-title {
-    font-size: 2.5rem;
-    font-family: 'Lalezar', cursive;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
-
-#modal-title.correct { color: var(--correct-color); }
-#modal-title.incorrect { color: var(--error-color); }
-
-#modal-message {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-}
-
-#modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-
-/* Screen Animations */
-
-/* Generation Screen Animation */
-#generation-select-screen #generation-select-title,
-#generation-select-screen .chapter-card,
-#generation-select-screen #back-to-main-btn {
-  opacity: 0;
-  animation-fill-mode: forwards;
-}
-
-#generation-select-screen.is-visible #generation-select-title {
-  opacity: 1;
+/* Category Screen Animation */
+#category-select-screen.is-visible #category-select-title {
   animation: wipe-in-right 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
-
-#generation-select-screen.is-visible .chapter-card,
-#generation-select-screen.is-visible #back-to-main-btn {
+#category-select-screen.is-visible .category-card,
+#category-select-screen.is-visible #back-to-main-menu-btn {
   animation-name: slide-up-fade-in;
   animation-duration: 0.6s;
   animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+#category-select-screen.is-visible .category-card:nth-of-type(1) { animation-delay: 0.3s; }
+#category-select-screen.is-visible .category-card:nth-of-type(2) { animation-delay: 0.4s; }
+#category-select-screen.is-visible #back-to-main-menu-btn { animation-delay: 0.5s; }
 
-#generation-select-screen.is-visible .chapter-card:nth-of-type(1) { animation-delay: 0.3s; }
-#generation-select-screen.is-visible .chapter-card:nth-of-type(2) { animation-delay: 0.4s; }
-#generation-select-screen.is-visible .chapter-card:nth-of-type(3) { animation-delay: 0.5s; }
-#generation-select-screen.is-visible .chapter-card:nth-of-type(4) { animation-delay: 0.55s; }
-#generation-select-screen.is-visible .chapter-card:nth-of-type(5) { animation-delay: 0.6s; }
-#generation-select-screen.is-visible #back-to-main-btn { animation-delay: 0.7s; }
+/* Chapter Screen Animation */
+#chapter-select-screen.is-visible #chapter-select-title {
+  animation: wipe-in-right 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+#chapter-select-screen.is-visible .chapter-card,
+#chapter-select-screen.is-visible #back-to-category-btn {
+  animation-name: slide-up-fade-in;
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+#chapter-select-screen.is-visible .chapter-card:nth-of-type(1) { animation-delay: 0.3s; }
+#chapter-select-screen.is-visible .chapter-card:nth-of-type(2) { animation-delay: 0.4s; }
+#chapter-select-screen.is-visible .chapter-card:nth-of-type(3) { animation-delay: 0.5s; }
+#chapter-select-screen.is-visible .chapter-card:nth-of-type(4) { animation-delay: 0.55s; }
+#chapter-select-screen.is-visible .chapter-card:nth-of-type(5) { animation-delay: 0.6s; }
+#chapter-select-screen.is-visible #back-to-category-btn { animation-delay: 0.7s; }
 
 /* Level Screen Animation */
-#level-select-screen #level-select-title,
-#level-select-screen #level-progress-container,
-#level-select-screen .level-button,
-#level-select-screen #back-to-generations-btn,
-#game-screen #question-title-container,
-#game-screen #timer-bar-container,
-#game-screen #question-text,
-#game-screen .answer-button,
-#game-screen #back-to-map-ingame-btn {
-  opacity: 0;
-  animation-fill-mode: forwards;
-}
-
 #level-select-screen.is-visible #level-select-title {
-  opacity: 1;
   animation:
     wipe-in-right 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards,
     title-glow 2.5s ease-in-out 0.7s infinite;
 }
-
 #level-select-screen.is-visible #level-progress-container {
-  animation-name: slide-up-fade-in;
-  animation-duration: 0.5s;
-  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  animation-delay: 0.2s;
+  animation: slide-up-fade-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
 }
-
-#level-select-screen.is-visible #back-to-generations-btn,
+#level-select-screen.is-visible #back-to-chapters-btn,
 #level-select-screen.is-visible .level-button {
   animation-name: slide-up-fade-in;
   animation-duration: 0.5s;
   animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-
-#level-select-screen.is-visible #back-to-generations-btn { animation-delay: 0.5s; }
+#level-select-screen.is-visible #back-to-chapters-btn { animation-delay: 0.5s; }
 
 /* Game Screen Animation */
 #game-screen.is-visible #question-title-container {
-  opacity: 1;
   animation: wipe-in-right 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 #game-screen.is-visible #timer-bar-container {
-  opacity: 1;
   animation: fadeIn 0.5s ease-out 0.2s forwards;
 }
 #game-screen.is-visible #question-text {
-  opacity: 1;
   animation: fadeIn 0.5s ease-out 0.4s forwards;
 }
-
 #game-screen.is-visible .answer-button,
 #game-screen.is-visible #back-to-map-ingame-btn {
-  animation-name: slide-up-fade-in;
-  animation-duration: 0.5s;
-  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: slide-up-fade-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-
 #game-screen.is-visible .answer-button:nth-of-type(1) { animation-delay: 0.6s; }
 #game-screen.is-visible .answer-button:nth-of-type(2) { animation-delay: 0.7s; }
 #game-screen.is-visible .answer-button:nth-of-type(3) { animation-delay: 0.8s; }
 #game-screen.is-visible .answer-button:nth-of-type(4) { animation-delay: 0.9s; }
-#game-screen.is-visible .answer-button:nth-of-type(5) { animation-delay: 1.0s; }
-#game-screen.is-visible .answer-button:nth-of-type(6) { animation-delay: 1.1s; }
-#game-screen.is-visible #back-to-map-ingame-btn { animation-delay: 1.2s; }
+#game-screen.is-visible #back-to-map-ingame-btn { animation-delay: 1.0s; }
 
-/* --- Responsiveness for Android & Mobile Devices --- */
+/* ==========================================================================
+   7. RESPONSIVENESS (Media Queries)
+   ========================================================================== */
 @media (max-width: 600px) {
-
-    #main-menu, #generation-select-screen, #level-select-screen, #game-screen {
+    .screen-container {
         padding: 25px 20px;
         width: 95%;
     }
+    #game-title { font-size: 2.5rem; }
+    #logo { width: 120px; }
+    .menu-title { font-size: 2.8rem; margin-bottom: 20px; }
+    .menu-button, .menu-input { min-width: unset; width: 90%; max-width: 380px; padding: 12px 20px; font-size: 1.1rem; }
+    #welcome-message { font-size: 1.5rem; }
 
-    /* Make fonts and titles more compact */
-    #game-title {
-        font-size: 2.5rem;
-    }
+    #category-grid { gap: 15px; grid-template-columns: 1fr; }
+    .category-card { padding: 30px 15px; font-size: 1.5rem; }
+    #chapter-grid { gap: 12px; }
+    .chapter-card { padding: 25px 10px; font-size: 1.3rem; }
 
-    #logo {
-        width: 120px;
-    }
+    #level-grid-container { padding: 0 10px; max-height: 45vh; }
+    #level-grid { gap: 12px; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+    .level-button { font-size: 1.3rem; }
+    .level-button.locked::after { font-size: 1.1rem; }
 
-    .menu-title {
-        font-size: 2.8rem;
-        margin-bottom: 20px;
-    }
+    #question-title-container { margin-bottom: 15px; }
+    #question-text { font-size: 1.3rem; margin-bottom: 30px; max-width: 100%; }
+    #answers-container { gap: 12px; grid-template-columns: 1fr; } /* Stack answers on small screens */
+    .answer-button { padding: 14px 10px; font-size: 1rem; }
+    #back-to-map-ingame-btn { margin-top: 25px; }
 
-    /* Adjust main menu buttons and inputs for smaller screens */
-    .menu-button, .menu-input {
-        min-width: unset;
-        width: 90%;
-        max-width: 380px;
-        padding: 12px 20px;
-        font-size: 1.1rem;
-    }
-    
-    #welcome-message {
-        font-size: 1.5rem;
-    }
-
-    /* Tweak generation grid */
-    #generation-grid {
-        gap: 12px;
-    }
-
-    .chapter-card {
-        padding: 25px 10px;
-        font-size: 1.3rem;
-    }
-
-    /* Optimize level selection screen */
-    #level-grid-container {
-        padding: 0 10px;
-        max-height: 45vh; /* Allow more vertical space */
-    }
-
-    #level-grid {
-        gap: 12px;
-        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Slightly smaller buttons */
-    }
-
-    .level-button {
-        font-size: 1.3rem;
-    }
-    
-    .level-button.locked::after {
-        font-size: 1.1rem;
-    }
-
-
-    /* Game Screen adjustments */
-    #question-title-container {
-        margin-bottom: 15px;
-    }
-
-    #question-text {
-        font-size: 1.3rem;
-        margin-bottom: 30px;
-        max-width: 100%;
-    }
-
-    #answers-container {
-        gap: 12px;
-        width: 100%;
-    }
-
-    .answer-button {
-        padding: 14px 10px;
-        font-size: 1rem;
-    }
-
-    #back-to-map-ingame-btn {
-        margin-top: 25px;
-    }
-
-    /* Modal adjustments */
-    .modal-content {
-        width: 90%;
-        max-width: 400px;
-        padding: 25px;
-    }
-
-    #modal-title {
-        font-size: 2.2rem;
-    }
-
-    #modal-message {
-        font-size: 1.1rem;
-        margin-bottom: 25px;
-    }
-    
-    #modal-actions {
-        flex-direction: column; /* Stack buttons vertically */
-        gap: 10px;
-        width: 100%;
-    }
-
-    #modal-actions .menu-button {
-      width: 100%;
-      margin: 0; /* Reset margin from general .menu-button style */
-    }
+    .modal-content { width: 90%; max-width: 400px; padding: 25px; }
+    #modal-title { font-size: 2.2rem; }
+    #modal-message { font-size: 1.1rem; margin-bottom: 25px; }
+    #modal-actions { flex-direction: column; gap: 10px; width: 100%; }
+    #modal-actions .menu-button { width: 100%; margin: 0; }
 }
 
-
 @media (max-width: 380px) {
-    /* Further adjustments for very narrow screens */
-    .menu-title {
-        font-size: 2.4rem;
-    }
-
-    #question-text {
-        font-size: 1.15rem;
-    }
-    
-    .chapter-card {
-        padding: 20px 10px;
-        font-size: 1.1rem;
-    }
-
-    #level-grid {
-        grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
-    }
-
-    .answer-button {
-        font-size: 0.9rem;
-        padding: 12px 8px;
-    }
-    
-    #modal-title {
-        font-size: 1.9rem;
-    }
+    .menu-title { font-size: 2.4rem; }
+    #question-text { font-size: 1.15rem; }
+    .chapter-card { padding: 20px 10px; font-size: 1.1rem; }
+    #level-grid { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); }
+    .answer-button { font-size: 0.9rem; padding: 12px 8px; }
+    #modal-title { font-size: 1.9rem; }
 }

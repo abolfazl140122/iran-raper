@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -22,41 +21,40 @@
   </div>
   
   <div id="main-content" class="hidden">
+    
     <!-- Main Menu -->
-    <div id="main-menu">
+    <div id="main-menu" class="screen-container">
         <h1 class="menu-title">Iran Rap</h1>
-        
         <div id="name-entry-container">
           <input type="text" id="player-name-input" class="menu-input" placeholder="نام خود را وارد کنید..." aria-label="Player Name"/>
           <button id="continue-btn" class="menu-button">ادامه</button>
         </div>
-    
         <div id="welcome-container" class="hidden">
             <h2 id="welcome-message"></h2>
             <button id="change-name-btn" class="link-button">تغییر نام</button>
         </div>
-    
         <div id="main-menu-buttons" class="hidden">
           <button id="start-game-btn" class="menu-button">شروع بازی</button>
           <button id="settings-btn" class="menu-button">تنظیمات</button>
         </div>
     </div>
 
-    <!-- Generation Selection -->
-    <div id="generation-select-screen" class="hidden">
-        <h2 class="menu-title" id="generation-select-title">نسل‌ها را انتخاب کنید</h2>
-        <div id="generation-grid">
-            <div class="chapter-card" data-generation="1"><span>نسل ۱</span></div>
-            <div class="chapter-card disabled" data-generation="2"><span>نسل ۲</span><span class="soon-text">به زودی...</span></div>
-            <div class="chapter-card disabled" data-generation="3"><span>نسل ۳</span><span class="soon-text">به زودی...</span></div>
-            <div class="chapter-card disabled" data-generation="4"><span>نسل ۴</span><span class="soon-text">به زودی...</span></div>
-            <div class="chapter-card disabled" data-generation="5"><span>نسل ۵</span><span class="soon-text">به زودی...</span></div>
-        </div>
-        <button id="back-to-main-btn" class="menu-button secondary">بازگشت</button>
+    <!-- Category Selection -->
+    <div id="category-select-screen" class="screen-container hidden">
+        <h2 id="category-select-title" class="menu-title">دسته بندی را انتخاب کنید</h2>
+        <div id="category-grid"></div>
+        <button id="back-to-main-menu-btn" class="menu-button secondary">بازگشت</button>
+    </div>
+
+    <!-- Chapter Selection (Generations, Artists, etc.) -->
+    <div id="chapter-select-screen" class="screen-container hidden">
+        <h2 id="chapter-select-title" class="menu-title"></h2>
+        <div id="chapter-grid"></div>
+        <button id="back-to-category-btn" class="menu-button secondary">بازگشت</button>
     </div>
 
     <!-- Level Selection -->
-    <div id="level-select-screen" class="hidden">
+    <div id="level-select-screen" class="screen-container hidden">
         <h2 class="menu-title" id="level-select-title"></h2>
         <div id="level-progress-container">
           <span id="level-progress-text"></span>
@@ -67,11 +65,11 @@
         <div id="level-grid-container">
           <div id="level-grid"></div>
         </div>
-        <button id="back-to-generations-btn" class="menu-button secondary">بازگشت به نسل‌ها</button>
+        <button id="back-to-chapters-btn" class="menu-button secondary">بازگشت به فصل‌ها</button>
     </div>
 
     <!-- Game Screen -->
-    <div id="game-screen" class="hidden">
+    <div id="game-screen" class="screen-container hidden">
       <div id="question-title-container">
         <h2 class="menu-title" id="question-title"></h2>
       </div>
