@@ -92,6 +92,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modalNextBtn = document.getElementById('modal-next-btn');
   const modalRetryBtn = document.getElementById('modal-retry-btn');
   const modalMapBtn = document.getElementById('modal-map-btn');
+  
+  const settingsModal = document.getElementById('settings-modal');
+  const resetProgressBtn = document.getElementById('reset-progress-btn');
+  const settingsCloseBtn = document.getElementById('settings-close-btn');
 
   // --- Game State ---
   let loadingInterval = null;
@@ -102,6 +106,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentCategoryKey = '';
   let currentChapterKey = '';
   let currentQuestion = null;
+  let cachedGameData = {};
+  let lastCompletedLevel = null;
+
 
   // --- Game Data & Progress ---
   function saveProgress() {
@@ -151,6 +158,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         playerProgress = { progress: {} };
     }
   }
+  
+  async function prefetchGameData() {
+    try {
+        const allSources = new Set();
+        Object.values(GAME_DATA).forEach(category => {
+            Object.values(category.chapters).forEach(chapter => {
+                if (chapter.sources) {
+                    chapter.sources.forEach(src => allSources.add(src));
+                }
+            });
+        });
+
+        const fetchPromises = Array.from(allSources).map(src =>
+            fetch(src)
+            .then(res => {
+                if (!res.ok) throw new Error(`Failed to fetch ${src}`);
+                return res.json();
+            })
+            .then(data => {
+                cachedGameData[src] = data;
+            })
+        );
+
+        await Promise.all(fetchPromises);
+        console.log('All game data pre-fetched and cached.');
+    } catch (error) {
+        console.warn('Could not pre-fetch all game data. The game will fetch it on demand.', error);
+    }
+}
+
 
   // --- Main Menu Setup ---
   function setupMainMenu() {
@@ -244,6 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         loadProgress();
         setupMainMenu();
+        prefetchGameData();
         // If everything is setup, start the loading animation
         navigator.onLine ? startLoading() : showOfflineMessage();
     } catch (error) {
@@ -356,6 +394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function handleTimeUp() {
     clearTimer();
     answersContainer.querySelectorAll('.answer-button').forEach(btn => btn.classList.add('disabled'));
+    lastCompletedLevel = null;
     showFeedbackModal(false, true);
   }
 
@@ -370,9 +409,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     mainContent.classList.add('is-loading-data');
 
     try {
-        const fetchPromises = chapter.sources.map(src => fetch(src).then(res => res.json()));
-        const allQuestions = await Promise.all(fetchPromises);
-        currentChapterData = allQuestions.flat().sort(() => Math.random() - 0.5);
+        const chapterSources = chapter.sources;
+        const isDataCached = chapterSources.every(src => cachedGameData[src]);
+        let allQuestionsData;
+
+        if (isDataCached) {
+            allQuestionsData = chapterSources.map(src => cachedGameData[src]);
+        } else {
+            const fetchPromises = chapterSources.map(src => fetch(src).then(res => res.json()));
+            allQuestionsData = await Promise.all(fetchPromises);
+        }
+
+        currentChapterData = allQuestionsData.flat().sort(() => Math.random() - 0.5);
         
         const progressKey = `${currentCategoryKey}_${currentChapterKey}`;
         if (!playerProgress.progress[progressKey]) {
@@ -386,7 +434,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error(`Failed to load data for ${chapter.name}:`, error);
         alert(`خطا در بارگذاری اطلاعات. لطفا اتصال اینترنت خود را بررسی کنید.`);
     } finally {
-        mainContent.classList.remove('is-loading-data');
+        setTimeout(() => {
+            mainContent.classList.remove('is-loading-data');
+        }, 150);
     }
   }
   
@@ -453,25 +503,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const allButtons = answersContainer.querySelectorAll('.answer-button');
     allButtons.forEach(btn => btn.classList.add('disabled'));
 
-    if (selectedAnswer === correctAnswer) {
-        button.classList.add('correct');
-        const progressKey = `${currentCategoryKey}_${currentChapterKey}`;
-        const chapterProgress = playerProgress.progress[progressKey];
+    button.classList.add('selected');
 
-        if (currentQuestion && !chapterProgress.completedQuestions.includes(currentQuestion.question)) {
-            chapterProgress.completedQuestions.push(currentQuestion.question);
+    setTimeout(() => {
+        if (selectedAnswer === correctAnswer) {
+            button.classList.add('correct');
+            const progressKey = `${currentCategoryKey}_${currentChapterKey}`;
+            const chapterProgress = playerProgress.progress[progressKey];
+
+            if (currentQuestion && !chapterProgress.completedQuestions.includes(currentQuestion.question)) {
+                chapterProgress.completedQuestions.push(currentQuestion.question);
+            }
+            if (currentLevel === chapterProgress.completedLevels + 1) {
+                chapterProgress.completedLevels++;
+                lastCompletedLevel = currentLevel;
+            }
+            
+            saveProgress();
+            setTimeout(() => showFeedbackModal(true, false), 1200);
+        } else {
+          button.classList.add('incorrect');
+          allButtons.forEach(btn => { if(btn.textContent === correctAnswer) btn.classList.add('correct'); });
+          lastCompletedLevel = null;
+          setTimeout(() => showFeedbackModal(false, false), 1200);
         }
-        if (currentLevel === chapterProgress.completedLevels + 1) {
-            chapterProgress.completedLevels++;
-        }
-        
-        saveProgress();
-        showFeedbackModal(true, false);
-    } else {
-      button.classList.add('incorrect');
-      allButtons.forEach(btn => { if(btn.textContent === correctAnswer) btn.classList.add('correct'); });
-      showFeedbackModal(false, false);
-    }
+    }, 500);
   }
   
   function showFeedbackModal(isCorrect, isTimeUp) {
@@ -527,14 +583,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   backToCategoryBtn.addEventListener('click', showCategorySelect);
   backToChaptersBtn.addEventListener('click', () => showChapterSelect(currentCategoryKey));
   
-  function returnToLevelMap() {
+  async function returnToLevelMap() {
       const chapter = GAME_DATA[currentCategoryKey].chapters[currentChapterKey];
-      loadChapterData(chapter);
+      await loadChapterData(chapter);
+
+      if(lastCompletedLevel) {
+        const completedButton = levelGrid.querySelector(`.level-button[data-level='${lastCompletedLevel}']`);
+        if (completedButton) {
+            completedButton.className = 'level-button completed just-completed';
+            completedButton.innerHTML = `&#10004;`;
+
+            completedButton.addEventListener('animationend', () => {
+                completedButton.classList.remove('just-completed');
+            }, { once: true });
+        }
+        lastCompletedLevel = null;
+      }
   }
   backToMapInGameBtn.addEventListener('click', returnToLevelMap);
   modalMapBtn.addEventListener('click', () => { hideFeedbackModal(); returnToLevelMap(); });
 
-  settingsBtn.addEventListener('click', () => alert('صفحه تنظیمات در دست ساخت است!'));
+  settingsBtn.addEventListener('click', () => {
+    settingsModal.classList.remove('hidden');
+  });
+
+  settingsCloseBtn.addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+  });
+
+  resetProgressBtn.addEventListener('click', () => {
+      if (confirm('آیا مطمئن هستید؟ تمام پیشرفت شما پاک خواهد شد.')) {
+          localStorage.removeItem('iranRapProgress');
+          playerProgress = { progress: {} }; // Reset in-memory state
+          setupMainMenu();
+          settingsModal.classList.add('hidden');
+          navigateTo('mainMenu');
+      }
+  });
+
   
   levelGrid.addEventListener('click', (event) => {
     const levelButton = event.target.closest('.level-button');
