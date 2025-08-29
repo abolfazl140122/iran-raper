@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const progressBar = document.getElementById('progress-bar');
   const statusText = document.getElementById('status-text');
   const loaderContainer = document.getElementById('loader-container');
-  const backgroundAnimation = document.querySelector('.background-animation');
   
   const mainContent = document.getElementById('main-content');
   const screens = {
@@ -78,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   // --- Element Check ---
-  if (!loadingScreen || !progressBar || !statusText || !mainContent || !loaderContainer || !backgroundAnimation ||
+  if (!loadingScreen || !progressBar || !statusText || !mainContent || !loaderContainer ||
       !screens.mainMenu || !screens.generationSelect || !screens.levelSelect || !screens.game || 
       !startGameBtn || !settingsBtn || !backToMainBtn || !generationGrid || !levelSelectTitle || !levelGrid || !backToGenerationsBtn ||
       !levelProgressContainer || !levelProgressText || !levelProgressBar ||
@@ -467,14 +466,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedbackModal.classList.add('hidden');
   }
 
-  function handleParallax(event) {
-      const { clientX, clientY } = event;
-      const { innerWidth, innerHeight } = window;
-      const moveX = (clientX - innerWidth / 2) / 40;
-      const moveY = (clientY - innerHeight / 2) / 40;
-      backgroundAnimation.style.transform = `translate(${moveX}px, ${moveY}px)`;
-  }
-
   // --- Event Listeners ---
   continueBtn.addEventListener('click', () => {
     const name = playerNameInput.value.trim();
@@ -546,7 +537,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     navigateTo('levelSelect');
   });
   
-  window.addEventListener('mousemove', handleParallax);
   window.addEventListener('online', () => {
     if (loadingScreen && !loadingScreen.classList.contains('fade-out')) {
         initializeApp();
